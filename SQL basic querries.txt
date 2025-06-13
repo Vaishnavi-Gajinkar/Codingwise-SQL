@@ -40,6 +40,48 @@ Basic SQL concepts - (SELECT, FROM, *, 	ORDER BY, LIMIT, OFFSET)
 	SELECT * FROM vendor_inventory ORDER BY original_price desc
 20. Show all booth records ordered by booth_type alphabetically
 	SELECT * FROM booth ORDER BY booth_type
+21. Display the first 5 entries from the customer table
+	SELECT * FROM customer LIMIT 5
+22. Show the top 10 rows from the vendor_inventory table
+	SELECT * FROM vendor_inventory LIMIT 10
+23. List the first 3 products from the product table
+	SELECT * FROM product LIMIT 3
+24. Retrieve top 7 entries from the market_date_info table
+	SELECT * FROM market_date_info LIMIT 7
+25. Show the first 2 records from the vendor_booth_assignments table 
+	SELECT * FROM vendor_booth_assignments LIMIT 2
+26. Display only the first record from the product_category table
+	SELECT * FROM product_category LIMIT 1
+27. Show the top 6 rows from the datetime_demo table
+	SELECT * FROM datetime_demo LIMIT 6				# check
+28. Return the first 4 vendors in the vendor table
+	SELECT * FROM vendor LIMIT 4
+29. Show the first 8 booths from the booth table
+	SELECT * FROM booth LIMIT 8
+30. List the top 9 purchases from the customer_purchases table
+	SELECT * FROM customer_purchases LIMIT 9
+31. Skip the first 3 entries in product and show the next 4
+	SELECT * FROM product LIMIT 3,4
+32. Display 5 records from customer_purchases, starting from 6th record
+	SELECT * FROM customer_purchases LIMIT 6,5
+33. Retrieve 2 rows from the vendor_inventory after skipping the first 5
+	SELECT * FROM vendor_inventory LIMIT 5,2
+34. List 4 booths from the booth table starting from the 3rd record
+	SELECT * FROM booth LIMIT 3, 4
+35. Show 3 products from the product table, starting after the first 6
+	SELECT * FROM product LIMIT 6,3
+36. Display 2 customer records after skipping the first 2 entries
+	SELECT * FROM customer LIMIT 2,2
+37. Show the 4th to 8th vendors from the vendor table
+	SELECT * FROM vendor LIMIT 3,5
+38. Retrieve 3 records from the market_date_info table after skipping 7 entries
+	SELECT * FROM market_date_info LIMIT 7,3
+39. List 5 rows from vendor_booth_assignments starting at record 10
+	SELECT * FROM vendor_booth_assignments LIMIT 9,5
+40. Show 6 rows from customer beginning at 5th record
+	SELECT * FROM customer LIMIT 4,6
+
+
 
 
 
