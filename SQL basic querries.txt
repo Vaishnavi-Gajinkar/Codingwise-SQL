@@ -1,0 +1,68 @@
+Basic SQL concepts - (SELECT, FROM, *, 	ORDER BY, LIMIT, OFFSET)
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+1. Display all records from the 'customer' table
+	SELECT * FROM customer
+2. Show all data stored in 'vendor' table
+	SELECT * FROM vendor
+3. List the entire contents of the 'product' table
+	SELECT * FROM product
+4. Retrieve all columns from the 'market_date_info' table
+	SELECT * FROM market_date_info
+5. Show every row from the 'booth' table without any filter
+	SELECT * FROM booth
+6. Select all rows from the vendor_booth_assignments table
+	SELECT * FROM vendor_booth_assignments
+7. Display all fields for all vendors who have been recorded
+	SELECT * FROM vendor
+8. Retrieve the complete dataset from the 'customer_purchases' table
+	SELECT * FROM customer_purchases
+9. Show every record present in 'vendor_inventory' table
+	SELECT * FROM vendor_inventory
+10. Select and display everything stored in the 'product_category' table
+	SELECT * FROM product_category
+11. Display all records from customer_purchases and sort them by quantity in ascending order
+	SELECT * FROM customer_purchases ORDER BY quantity asc
+12. Show all records from customer_purchases sorted by quantity in descending order
+	SELECT * FROM customer_purchases ORDER BY quantity desc
+13. List all products from product table ordered by product_name alphabetically
+	SELECT * FROM product ORDER BY product_name asc
+14. Show vendors sorted by vendor_name in descending
+	SELECT * FROM vendors ORDER BY vendor_name desc
+15. Display customer records sorted by customer_last_name in ascending order
+	SELECT * FROM customer ORDER BY customer_last_name asc
+16. Retrieve market dates sorted from the earliest to latest in the market_date_info table
+	SELECT market_date FROM market_date_info ORDER BY market_date
+17. Show product categories ordered by product_category_name in reverse alphabetical order
+	SELECT product_category_name AS pcm FROM product_category ORDER BY pcm desc
+18. List all booth records sorted by booth_price_level from lowest to highest
+	SELECT * FROM booth ORDER BY booth_price_level asc
+19. Display all vendor inventory entries ordered by original price in descending order
+	SELECT * FROM vendor_inventory ORDER BY original_price desc
+20. Show all booth records ordered by booth_type alphabetically
+	SELECT * FROM booth ORDER BY booth_type
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
