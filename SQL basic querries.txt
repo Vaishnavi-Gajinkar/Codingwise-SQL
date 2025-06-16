@@ -100,14 +100,36 @@ Basic SQL concepts - (SELECT, FROM, *, 	ORDER BY, LIMIT, OFFSET)
 	SELECT * FROM datetime_demo ORDER BY market_start_datetime LIMIT 2,4
 50. Display 5 vendor names ordered descending by vendor_type, skip the first 3
 	SELECT vendor_name FROM vendor ORDER BY vendor_type DESC LIMIT 3,5
-
-
-
-
-
-
-
-
+51. Show all customer records, ordered by customer_last_name and then customer_first_name alphabetically
+	SELECT * FROM customer ORDER BY customer_last_name, customer_first_name
+52. Display all products ordered by product_category_id and then product_name ascending
+	SELECT * FROM product ORDER BY product_category_id, product_name
+53. List all vendor inventory entries sorted by market_date ascending and original_price descending
+	SELECT * FROM vendor_inventory ORDER BY market_date, original_price DESC
+54. Show all records from customer_purchases sorted by market_date and then quantity in descending order
+	SELECT * FROM customer_purchases ORDER BY market_date, quantity DESC
+55. Display vendor_booth_assignments ordered by market_date and then by booth_number ascending
+	SELECT * FROM vendor_booth_assignments ORDER BY market_date, booth_number
+56. Retrieve all booths ordered by booth_type and then booth_price_level descending
+	SELECT * FROM booth ORDER BY booth_type, booth_price_level DESC
+57. List vendors ordered by vendor_type, and within each type, by vendor_name alphabetically	
+	SELECT * FROM vendor ORDER BY vendor_type, vendor_name
+58. Show products ordered by product_qty_type ascending and then by product_size descending
+	SELECT * FROM product ORDER by product_qty_type, product_size DESC								# clarify
+59. Display market information ordered by market_year, and then market_week within each year
+	SELECT * FROM market_date_info ORDER BY market_year, market_week
+60. Show datetime demo records ordered first by market_date, and then by market_start_time ascending
+	SELECT * FROM market_date_info ORDER BY market_date, market_start_time
+61. Display all product categories ordered by product_category_name and then by product_category_id
+	SELECT * FROM product_category ORDER BY product_category_name, product_category_id
+62. Show customers ordered by customer_zip ascending and then by customer_last_name alphabetically
+	SELECT * FROM customer ORDER BY customer_zip, customer_last_name
+63. List vendor inventory entries sorted by vendor_id and then by product_id ascending
+	SELECT * FROM vendor_inventory ORDER BY vendor_id, product_id
+64. Retrieve customer purchases sorted by transaction_time ascending and then by cost_to_customer_per_qty descending
+	SELECT * FROM customer_purchases ORDER BY transaction_time, cost_to_customer_per_qty DESC
+65. Show all booths ordered first by booth_price_level descending and then by booth_number ascending
+	SELECT * FROM booth ORDER BY booth_price_level DESC, booth_number
 
 
 
