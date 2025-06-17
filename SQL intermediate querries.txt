@@ -1,0 +1,46 @@
+Intermediate SQL concepts - Filter, , In, Case, Concat, Between, Derived columns
+----------------------------------------------------------------------------------------------
+1. Find all customers whose first name starts with 'A'
+    SELECT * FROM customer WHERE customer_first_name LIKE 'A%'
+2. Show all vendors where the vendor name contains the word 'Farm'
+    SELECT * FROM vendor WHERE vendor_name LIKE '%Farm%'                #check
+3. Get products whose product_name starts with 'Red'
+    SELECT * FROM product WHERE product_name LIKE 'Red%'
+4. Retrieve vendors whose vendor_type includes the word 'fresh'. (case-insensitive)
+    SELECT * FROM vendor WHERE LOWER(vendor_type) LIKE '%fresh%'
+5. List customers whose last name ends with 'son'
+    SELECT * FROM customer WHERE customer_last_name LIKE '%son'
+6. Find product names that contain the word 'Potato'
+    SELECT * FROM product WHERE product_name LIKE '%potato%'
+7. Show vendor types that contain the substring Dairy
+    SELECT * FROM vendor WHERE vendor_type LIKE '%dairy%'               # check
+8. List customers with customer_first_name containing 'ar'
+    SELECT * FROM customer WHERE customer_first_name LIKE '%ar%'
+9. Get products where product_size ends with 'g'
+    SELECT * FROM product WHERE product_size LIKE '%g'                  # check
+10. Retrieve booths where the booth_description starts with 'Located'
+    SELECT * FROM booth WHERE booth_description LIKE 'Located%'         # check
+11. List customers whose last names are in (Diaz, Smith, Edwards)
+    SELECT * FROM customer WHERE customer_last_name IN ('diaz','smith','edwards')
+12. Show vendor_booth_assignments for vendors with ID s 1,3,5
+    SELECT * FROM vendor_booth_assignments WHERE vendor_id IN (1,3,5)
+13. Get product details for IDs 4,7 and 10
+    SELECT * FROM product WHERE product_id IN (4,7,10)
+14. Retrieve customer with ZIP codes 10001, 20002, 30003
+    SELECT * FROM customer WHERE customer_zip IN (10001,20002,30003)    # check
+15. List market records with seasons in (winter, spring)
+    SELECT * FORM market_date_info WHERE market_season IN ('winter','spring')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
