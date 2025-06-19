@@ -50,11 +50,36 @@ Intermediate SQL concepts - Filter, , In, Case, Concat, Between, Derived columns
     SELECT * FROM market_date_info WHERE market_date BETWEEN '2019-03-01' AND '2019-03-31'
 25. Get vendor inventory where original_price is between 20 and 40
     SELECT * FROM vendor_inventory WHERE original_price BETWEEN 20 AND 40
-
-
-
-
-
+26. Find booth numbers between 1 & 10
+    SELECT * FROM booth WHERE booth_number BETWEEN 1 and 10
+27. Show market weeks between 10 and 20
+    SELECT * FROM market_date_info WHERE market_week BETWEEN 10 AND 20
+28. Retrieve product categories with IDs between 1 and 4
+    SELECT * FROM product_category WHERE product_category_id BETWEEN 1 AND 4
+29. Get vendor IDs between 1 and 5
+    SELECT * FROM vendor WHERE vendor_id BETWEEN 1 AND 5
+30. List customer purchases made between '2019-04-10' and '2019-04-20'
+    SELECT * FROM customer_purchases WHERE market_date BETWEEN '2019-04-10' AND '2019-04-20'
+31. Show customers with ZIP code greater than 50000
+    SELECT * FROM customer WHERE customer_zip > 50000
+32. List purchases where quantity is greater than 10
+    SELECT * FROM customer_purchases WHERE quantity > 10
+33. Get products where product_id is less than 10
+    SELECT * FROM product WHERE product_id < 10
+34. Retrieve booths with booth_price_level greater than 'A'
+    SELECT * FROM booth WHERE booth_price_level > 'A'
+35. Find market days with max temperature over 35 degrees
+    SELECT * FROM market_date_info WHERE market_max_temp > 35
+36. Show vendor_inventory with original_price less than 50
+    SELECT * FROM vendor_inventory WHERE original_price < 50
+37. List purchases where cost_to_customer_per_qty >= 25
+    SELECT * FROM customer_purchases WHERE cost_to_customer_per_qty >= 25
+38. Show booths with booth_numbers <= 10
+    SELECT * FROM booth WHERE booth_number <= 10
+39. Get market info where market_min_temp < 10
+    SELECT * FROM market_date_info WHERE market_min_temp < 10
+40. Find purchases where quantity >= 5
+    SELECT * FROM customer_purchases WHERE quantity >= 5
 
 
 
