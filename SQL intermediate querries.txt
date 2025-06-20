@@ -80,14 +80,34 @@ Intermediate SQL concepts - Filter, , In, Case, Concat, Between, Derived columns
     SELECT * FROM market_date_info WHERE market_min_temp < 10
 40. Find purchases where quantity >= 5
     SELECT * FROM customer_purchases WHERE quantity >= 5
-
-
-
-
-
-
-
-
-
-
-
+41. Find customers whose first name starts with 'A' and ZIP code > 40000.
+    SELECT * FROM customer WHERE customer_first_name LIKE 'A%' AND customer_zip > 40000
+42. Show vendors where vendor_type contains 'Fresh' or 'Fruit'.
+    SELECT * FROM vendor WHERE vendor_type LIKE '%Fresh%' OR vendor_type LIKE '%Fruit%'
+43. Get purchases with quantity > 5 and cost_to_customer_per_qty > 20.
+    SELECT * FROM customer_purchases WHERE quantity >5 AND cost_to_customer_per_qty > 20
+44. Retrieve booths with booth_price_level = 'B' or 'C'.
+    SELECT * FROM booth WHERE booth_price_level = 'B' OR booth_price_level = 'C'
+45. Show customers whose first name = 'Carlos' or last name = 'Diaz'.   
+    SELECT * FROM customer WHERE customer_first_name = 'Carlos' OR customer_last_name = 'Diaz'
+46. Find market days where market_day is 'Saturday' and market_snow_flag = 1.
+    SELECT * FROM market_date_info WHERE market_day = 'Saturday' AND market_snow_flag = 1
+47. Get inventory where original_price < 50 or quantity > 10.
+    SELECT * FROM vendor_inventory WHERE original_price < 50 OR quantity > 10
+48. Show products with size = '500g' and category ID > 2.
+    SELECT * FROM product WHERE product_size = '500G' AND product_category_id > 2
+49. Retrieve vendors with vendor_name LIKE '%Green%' and ID < 10.
+    SELECT * FROM vendor WHERE vendor_name LIKE '%Green%' AND vendor_id < 10
+50. List market info where market_season = 'Summer' or market_max_temp > 40.
+    SELECT * FROM market_date_info WHERE market_season = 'Summer' OR market_max_temp > 40                       # revisit
+51. Retrieve the top 5 vendors whose vendor_type contains the word 'fresh' and whose vendor_id is greater than 5.
+    SELECT * FROM vendor WHERE vendor_type LIKE '%Fresh%' AND vendor_id > 5 LIMIT 5
+52. List all customer full names (first + last) where the first name starts with 'M' and the ZIP code is between 30000 and 40000.
+    SELECT CONCAT(customer_first_name," ",customer_last_name) AS customer_full_name, customer_zip 
+    FROM customer WHERE customer_first_name LIKE 'M%' AND customer_zip BETWEEN 30000 and 40000
+53. Show the product names and sizes for products where the product_size ends with 'g' and the product_category_id is in (2, 4, 6).
+    SELECT product_name, product_size FROM product WHERE product_size LIKE '%g' AND product_category_id IN (2,4,6)
+54. Find all purchases made on market dates between '2019-04-01' and '2019-04-30' where the quantity was more than 5.
+    SELECT * FROM customer_purchases WHERE market_date BETWEEN '2019-04-01' AND '2019-04-30' AND quantity > 5
+55. Display vendors where either the vendor_name contains 'Farm' or the vendor_type contains 'fruit', but only if the ID is less than 10.
+    SELECT * FROM vendor WHERE vendor_name LIKE '%Farm%' OR vendor_type LIKE '%Fruit%' AND vendor_id < 10
