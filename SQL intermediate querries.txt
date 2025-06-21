@@ -1,4 +1,4 @@
-Intermediate SQL concepts - Filter, , In, Case, Concat, Between, Derived columns
+Intermediate SQL concepts - Filter, LIKE, In, Case, Concat, Between, Derived columns
 ----------------------------------------------------------------------------------------------
 1. Find all customers whose first name starts with 'A'
     SELECT * FROM customer WHERE customer_first_name LIKE 'A%'
@@ -111,3 +111,41 @@ Intermediate SQL concepts - Filter, , In, Case, Concat, Between, Derived columns
     SELECT * FROM customer_purchases WHERE market_date BETWEEN '2019-04-01' AND '2019-04-30' AND quantity > 5
 55. Display vendors where either the vendor_name contains 'Farm' or the vendor_type contains 'fruit', but only if the ID is less than 10.
     SELECT * FROM vendor WHERE vendor_name LIKE '%Farm%' OR vendor_type LIKE '%Fruit%' AND vendor_id < 10
+56. List products whose product_name contains the word 'Red' and the product_qty_type is either 'bunch' or 'kg'.
+    SELECT * FROM product WHERE product_name LIKE '%red%' OR (product_qty_type LIKE '%bunch%' OR product_qty_type LIKE '%kg%')
+57. Show booth details where the booth_price_level is 'A' or 'B' and the booth_type contains 'Table'.
+    SELECT * FROM booth WHERE (booth_price_level = 'A' OR booth_price_level = 'B') OR booth_type LIKE '%Table%'             # check
+58. Return all vendors whose type contains either 'fresh' or 'organic' and whose names start with 'Green'.
+    SELECT * FROM vendor WHERE (vendor_type LIKE '%fresh%' OR vendor_type LIKE '%organic%') AND vendor_name LIKE 'Green%'   # check
+59. Retrieve vendor inventory data where the original_price is between 30 and 60 and quantity is greater than 5.
+    SELECT * FROM vendor_inventory WHERE (original_price BETWEEN 30 AND 60) AND quantity > 5                                # check
+60. List purchases where the cost_to_customer_per_qty is more than 40 or quantity is more than 10, but not both.
+    SELECT * FROM customer_purchases WHERE (cost_to_customer_per_qty > 40 OR quantity > 10) AND (cost_to_customer_per_qty <=40 OR quantity <=10)
+61. Retrieve all customer names where the first name contains an 'a' and last name starts with either 'S' or 'T', ordered by ZIP code.
+    SELECT concat(customer_first_name," ",customer_last_name) AS CustomerName FROM customer WHERE customer_first_name LIKE '%A%' AND (customer_last_name LIKE 'S%' OR customer_last_name LIKE 'T%')
+62. Show market dates where either the market_max_temp is over 35 or the market_rain_flag is 1 and it happened on a Saturday.
+    SELECT market_date FROM market_date_info WHERE (market_max_temp > 35 OR market_rain_flag = 1) AND market_day = 'Saturday'
+63. Get all product names where product_id is between 10 and 20 and either product_size is null or ends in 'kg'.
+    SELECT product_name FROM product WHERE (product_id BETWEEN 10 AND 20) AND (product_size = "" OR product_size LIKE '%kg')            # verify
+64. List vendors where the owner's first name contains 'an' and last name ends in 'ez', and limit to top 5 results.
+    SELECT * FROM vendor WHERE vendor_owner_first_name LIKE '%an%' AND vendor_owner_last_name LIKE '%ez' LIMIT 5
+65. Retrieve all market day entries for which the market_season is 'Summer' and the market_min_temp is less than 25 or snow was reported.
+    SELECT * FROM market_date_info WHERE market_season LIKE '%Summer%' AND (market_min_temp < 25 OR market_snow_flag = 1)
+66. Show vendor booth assignments where the market_date is before '2019-04-15' and vendor_id is in (2, 4, 6, 8).
+    SELECT * FROM vendor_booth_assignments WHERE market_date < '2019-04-15' AND vendor_id IN (2,4,6,8)
+67. Get a list of customer purchases where the transaction_time is not null, the quantity is greater than 1, and the product_id is between 5 and 15.
+    SELECT * FROM customer_purchases WHERE transaction_time <> "" AND quantity > 1 AND product_id BETWEEN 5 AND 15
+68. Display all booth records where either booth_description includes 'corner' or booth_price_level is 'C', and the booth number is less than 15.
+    SELECT * FROM booth WHERE (booth_description LIKE '%corner%' OR booth_price_level = 'C') AND booth_number < 15
+69. List all products where product_qty_type is either 'bunch' or 'litre', and product_name contains either 'Leaf' or 'Oil'.
+    SELECT * FROM product WHERE product_qty_type IN ('bunch','litre') or (product_name LIKE '%oil%' OR product_name LIKE '%leaf%')
+70. Retrieve vendor inventory where original_price is not between 20 and 40, and quantity is greater than 10.
+    SELECT * FROM vendor_inventory WHERE (original_price NOT BETWEEN 20 AND 40) AND quantity > 10
+
+
+
+
+
+
+
+
