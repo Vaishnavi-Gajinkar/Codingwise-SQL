@@ -1,0 +1,44 @@
+SQL CASE & Derived columns - Simplified columns
+---------------------------------------------------------------------------------------------------------
+1. Create a new column that combines customer_first_name customer_last_name as full_name from customer Table
+    SELECT concat(customer_first_name," ",customer_last_name) AS full_name FROM customer
+2. Show a Derived column named total_cost by multiplying quantity and cost_to_customer_per_qty in the customer_purchases Table
+    SELECT (quantity * cost_to_customer_per_qty) AS total_cost FROM customer_purchases
+3. List all customers along with the length of their first name
+    SELECT customer_first_name, LENGTH(customer_first_name) AS fname_len FROM customer
+4. Display all vendor names and vendor_type and return a new column vendor_type_length 
+    SELECT vendor_name, vendor_type, LENGTH(vendor_type) AS vendor_type_length FROM vendor 
+5. Use TRIM() to clean up product_size values and return only those that are not blank
+    SELECT TRIM(product_size) as ProdSize FROM product WHERE length(product_size) > 0
+6. Return the top 10 products where the trimmed size is not empty
+    SELECT product_name, product_size FROM product WHERE TRIM(LENGTH(product_size)) > 0 LIMIT 10
+7. Create a column is_zip_valid that returns 1 if customer_zip > 10000 else 0
+    SELECT *, CASE WHEN customer_zip > 10000 THEN 1 ELSE 0 END AS is_zip_valid
+    FROM customer
+8. Combine booth_numbers and booth_type into one string column named booth_info
+    SELECT booth_number, booth_type, CONCAT(booth_number,booth_type) AS booth_info FROM booth
+9. Add a column price_per_item to vendor_inventory as a derived column from original_price / quantity
+    SELECT *, (original_price/quantity) AS price_per_item FROM vendor_inventory 
+10. Show a full_name column in vendor combining owner first and last names
+    SELECT concat(vendor_owner_first_name," ",vendor_owner_last_name) AS full_name FROM vendor
+11. List purchases and create a new column high_quantity that returns 'Yes' if quantity > 5 else 'No'
+    SELECT *, CASE WHEN quantity > 5 THEN 'Yes' ELSE 'No' END AS high_quantity 
+    FROM customer_purchases 
+12. Add a season_flag column to market_date_info that shows 1 if market_season is 'Summer' or 'winter', else 0
+    SELECT market_season, CASE WHEN market_season LIKE '%summer%' or market_season LIKE '%winter%' THEN 1 ELSE 0 END AS season_flag FROM market_date_info
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
