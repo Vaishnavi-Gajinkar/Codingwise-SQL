@@ -26,6 +26,68 @@ SQL CASE & Derived columns - Simplified columns
     FROM customer_purchases 
 12. Add a season_flag column to market_date_info that shows 1 if market_season is 'Summer' or 'winter', else 0
     SELECT market_season, CASE WHEN market_season LIKE '%summer%' or market_season LIKE '%winter%' THEN 1 ELSE 0 END AS season_flag FROM market_date_info
+13. Return vendors with a new column that shows Fresh Produce if vendor_type contains 'fresh', else Other
+    SELECT *, CASE WHEN vendor_type LIKE '%fresh%' THEN "Fresh" ELSE "Other" END AS freshness
+    FROM vendor
+14. Show customers where first name starts with 'A' and add a column starts_with_a with value 'Yes' or 'No'
+    SELECT *, CASE WHEN customer_first_name LIKE 'A%' THEN 'Yes' ELSE 'No' END AS starts_with_a 
+    FROM customer
+15. Add a derived column to customer_purchases that rounds total_price to 2 decimals
+    SELECT * , ROUND((quantity*cost_to_customer_per_qty), 2) AS total_price FROM customer_purchases
+16. Create a name_length_score by summing the lengths of first and last names of each customer
+    SELECT *, (LENGTH(customer_first_name) + LENGTH(customer_last_name)) AS name_length_score FROM customer
+17. Show product_name and return a new column with uppercase product_qty_type 
+    SELECT product_name, UPPER(product_qty_type) AS product_name FROM product 
+18. Return vendor_inventory with a flag column if original_price is above 100
+    SELECT *, CASE WHEN original_price > 100 THEN 'Yes' ELSE 'No' END AS 'expensive?' FROM vendor_inventory 
+19. Add a column in market_date_info that says 'cold' market_max_temp < 15, 'moderate' if between 15-30, else 'hot'
+    SELECT *,                                                                       # verify
+    CASE WHEN market_max_temp < 15 THEN 'cold'
+         WHEN market_max_temp BETWEEN 15 AND 30 THEN 'moderate'
+         ELSE 'hot'
+         END AS weather FROM market_date_info 
+20. Display customer full names and flag them as 'Long Name' if length > 15, else 'Short Name'
+    SELECT CONCAT(customer_first_name,customer_last_name) AS customer_full_names,
+    CASE WHEN LENGTH(customer_full_names) > 15 THEN 'Long Name'
+    ELSE 'Short Name' END AS flag FROM customer
+21. Use TRIM() + LENGTH() to find products with empty or blank product_size
+    SELECT *, 
+    CASE WHEN LENGTH(TRIM(product_size)) < 0 THEN 'empty product' ELSE 'valid product'
+    END AS flag FROM product_size
+22. Add a column zip_group in customer where zip<20000='A', <40000='B' else 'C'
+    SELECT *, 
+    CASE WHEN customer_zip < 20000 THEN 'A'
+         WHEN customer_zip < 40000 THEN 'B'
+    ELSE 'C' END AS zip_group FROM customer
+23. Use CASE to bin original_price in vendor_inventory into: 'Low','Medium','High'
+    SELECT *, 
+    CASE WHEN original_price < 5 THEN 'Low'
+         WHEN original_price BETWEEN 5 AND 15 THEN 'Medium'
+         WHEN original_price > 15 THEN 'High'
+         ELSE 'price missing' END AS 'bin'
+    FROM vendor_inventory
+24. Add a flag weekend_flag to market_day - 1 if Sat/Sun, else 0.
+    SELECT *,
+    CASE WHEN market_day IN ('Saturday', 'Sunday') THEN 1 ELSE 0 END AS 'weekend_flag'
+    FROM market_date_info
+25. Create a derived column 'vendor_rank' - 1 if vendor_id<5, 2 if between 5-10, else 3
+    SELECT *, 
+    CASE WHEN vendor_id < 5 THEN 1
+         WHEN vendor_id BETWEEN 5 AND 10 THEN 2
+         ELSE 3 END AS 'vendor_rank'
+    FROM vendor
+26. Combine market_day and market_season as one column: day_season_label.
+    SELECT *, CONCAT(market_day,market_season) AS day_season_label FROM market_date_info
+27. Use CASE in product to say 'Perishable' if category_id in (1,2) else 'Non-Perishable'
+    SELECT *, CASE WHEN product_category_id IN (1,2) THEN 'Perishable' ELSE 'Non-Perishable' END AS category
+    FROM product
+28. Add a column 'purchase_type' in customer_purchases: Bulk if qty>10, Regular if 5<qty<10, Light if qty<5
+    SELECT *, 
+    CASE WHEN quantity > 10 THEN 'Bulk'
+         WHEN quantity BETWEEN 5 AND 10 THEN 'Regular'
+         WHEN quantity < 5 THEN 'Light' END AS purchase_type
+    FROM customer_purchases
+
 
 
 
