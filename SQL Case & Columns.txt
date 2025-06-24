@@ -2,63 +2,85 @@ SQL CASE & Derived columns - Simplified columns
 ---------------------------------------------------------------------------------------------------------
 1. Create a new column that combines customer_first_name customer_last_name as full_name from customer Table
     SELECT concat(customer_first_name," ",customer_last_name) AS full_name FROM customer
+
 2. Show a Derived column named total_cost by multiplying quantity and cost_to_customer_per_qty in the customer_purchases Table
     SELECT (quantity * cost_to_customer_per_qty) AS total_cost FROM customer_purchases
+
 3. List all customers along with the length of their first name
     SELECT customer_first_name, LENGTH(customer_first_name) AS fname_len FROM customer
+
 4. Display all vendor names and vendor_type and return a new column vendor_type_length 
     SELECT vendor_name, vendor_type, LENGTH(vendor_type) AS vendor_type_length FROM vendor 
+
 5. Use TRIM() to clean up product_size values and return only those that are not blank
     SELECT TRIM(product_size) as ProdSize FROM product WHERE length(product_size) > 0
+
 6. Return the top 10 products where the trimmed size is not empty
     SELECT product_name, product_size FROM product WHERE TRIM(LENGTH(product_size)) > 0 LIMIT 10
+
 7. Create a column is_zip_valid that returns 1 if customer_zip > 10000 else 0
     SELECT *, CASE WHEN customer_zip > 10000 THEN 1 ELSE 0 END AS is_zip_valid
     FROM customer
+
 8. Combine booth_numbers and booth_type into one string column named booth_info
     SELECT booth_number, booth_type, CONCAT(booth_number,booth_type) AS booth_info FROM booth
+
 9. Add a column price_per_item to vendor_inventory as a derived column from original_price / quantity
     SELECT *, (original_price/quantity) AS price_per_item FROM vendor_inventory 
+
 10. Show a full_name column in vendor combining owner first and last names
     SELECT concat(vendor_owner_first_name," ",vendor_owner_last_name) AS full_name FROM vendor
+
 11. List purchases and create a new column high_quantity that returns 'Yes' if quantity > 5 else 'No'
     SELECT *, CASE WHEN quantity > 5 THEN 'Yes' ELSE 'No' END AS high_quantity 
     FROM customer_purchases 
+
 12. Add a season_flag column to market_date_info that shows 1 if market_season is 'Summer' or 'winter', else 0
     SELECT market_season, CASE WHEN market_season LIKE '%summer%' or market_season LIKE '%winter%' THEN 1 ELSE 0 END AS season_flag FROM market_date_info
+
 13. Return vendors with a new column that shows Fresh Produce if vendor_type contains 'fresh', else Other
     SELECT *, CASE WHEN vendor_type LIKE '%fresh%' THEN "Fresh" ELSE "Other" END AS freshness
     FROM vendor
+
 14. Show customers where first name starts with 'A' and add a column starts_with_a with value 'Yes' or 'No'
     SELECT *, CASE WHEN customer_first_name LIKE 'A%' THEN 'Yes' ELSE 'No' END AS starts_with_a 
     FROM customer
+
 15. Add a derived column to customer_purchases that rounds total_price to 2 decimals
     SELECT * , ROUND((quantity*cost_to_customer_per_qty), 2) AS total_price FROM customer_purchases
+
 16. Create a name_length_score by summing the lengths of first and last names of each customer
     SELECT *, (LENGTH(customer_first_name) + LENGTH(customer_last_name)) AS name_length_score FROM customer
+
 17. Show product_name and return a new column with uppercase product_qty_type 
     SELECT product_name, UPPER(product_qty_type) AS product_name FROM product 
+
 18. Return vendor_inventory with a flag column if original_price is above 100
     SELECT *, CASE WHEN original_price > 100 THEN 'Yes' ELSE 'No' END AS 'expensive?' FROM vendor_inventory 
+
 19. Add a column in market_date_info that says 'cold' market_max_temp < 15, 'moderate' if between 15-30, else 'hot'
     SELECT *,                                                                       # verify
     CASE WHEN market_max_temp < 15 THEN 'cold'
          WHEN market_max_temp BETWEEN 15 AND 30 THEN 'moderate'
          ELSE 'hot'
          END AS weather FROM market_date_info 
+
 20. Display customer full names and flag them as 'Long Name' if length > 15, else 'Short Name'
     SELECT CONCAT(customer_first_name,customer_last_name) AS customer_full_names,
     CASE WHEN LENGTH(customer_full_names) > 15 THEN 'Long Name'
     ELSE 'Short Name' END AS flag FROM customer
+
 21. Use TRIM() + LENGTH() to find products with empty or blank product_size
     SELECT *, 
     CASE WHEN LENGTH(TRIM(product_size)) < 0 THEN 'empty product' ELSE 'valid product'
     END AS flag FROM product_size
+
 22. Add a column zip_group in customer where zip<20000='A', <40000='B' else 'C'
     SELECT *, 
     CASE WHEN customer_zip < 20000 THEN 'A'
          WHEN customer_zip < 40000 THEN 'B'
     ELSE 'C' END AS zip_group FROM customer
+
 23. Use CASE to bin original_price in vendor_inventory into: 'Low','Medium','High'
     SELECT *, 
     CASE WHEN original_price < 5 THEN 'Low'
@@ -66,21 +88,26 @@ SQL CASE & Derived columns - Simplified columns
          WHEN original_price > 15 THEN 'High'
          ELSE 'price missing' END AS 'bin'
     FROM vendor_inventory
+
 24. Add a flag weekend_flag to market_day - 1 if Sat/Sun, else 0.
     SELECT *,
     CASE WHEN market_day IN ('Saturday', 'Sunday') THEN 1 ELSE 0 END AS 'weekend_flag'
     FROM market_date_info
+
 25. Create a derived column 'vendor_rank' - 1 if vendor_id<5, 2 if between 5-10, else 3
     SELECT *, 
     CASE WHEN vendor_id < 5 THEN 1
          WHEN vendor_id BETWEEN 5 AND 10 THEN 2
          ELSE 3 END AS 'vendor_rank'
     FROM vendor
+
 26. Combine market_day and market_season as one column: day_season_label.
     SELECT *, CONCAT(market_day,market_season) AS day_season_label FROM market_date_info
+
 27. Use CASE in product to say 'Perishable' if category_id in (1,2) else 'Non-Perishable'
     SELECT *, CASE WHEN product_category_id IN (1,2) THEN 'Perishable' ELSE 'Non-Perishable' END AS category
     FROM product
+
 28. Add a column 'purchase_type' in customer_purchases: Bulk if qty>10, Regular if 5<qty<10, Light if qty<5
     SELECT *, 
     CASE WHEN quantity > 10 THEN 'Bulk'
@@ -88,19 +115,70 @@ SQL CASE & Derived columns - Simplified columns
          WHEN quantity < 5 THEN 'Light' END AS purchase_type
     FROM customer_purchases
 
+29. For each customer, create a name_validity column: valid if name has length > 3, invalid otherwise
+    SELECT *, CASE WHEN (LENGTH(customer_first_name)>3) THEN 'valid' ELSE 'invalid' END AS name_validity FROM customer
 
+30. Return market_dates with a column: event_flag=1 if special_notes is not null
+    SELECT *, CASE WHEN special_notes IS NOT NULL THEN 1 ELSE 0 END AS event_flag FROM market_date_info
 
+31. Add a rain_or_snow column in market_date_info using CASE
+    SELECT *, CASE WHEN market_rain_flag = 1 THEN 'Rain' 
+    WHEN market_snow_flag = 1 THEN 'Snow' ELSE 0 END AS rain_or_snow FROM market_date_info
 
+32. Create a column price_level_numeric: A=1, B=2, C=3 in booth table
+    SELECT *, 
+    CASE WHEN booth_price_level = 'A' THEN 1 
+         WHEN booth_price_level = 'B' THEN 2 
+         WHEN booth_price_level = 'C' THEN 3 
+         ELSE 0 END AS price_level_numeric
+    FROM booth
 
+33. Show vendors where trimmed vendor_name has more than 10 characters
+    SELECT * FROM vendor WHERE LENGTH(TRIM(vendor_name)) > 10
+34. Return customers whose last_name ends with 'ez' and length < 6
+    SELECT * FROM customer WHERE customer_last_name LIKE '%ez' AND LENGTH(customer_last_name)<6
 
+35. Return a transaction_band column in customer_purchases: Under 50, 50-100, Over 100
+    SELECT *, CASE WHEN (quantity*cost_to_customer_per_qty)<50 THEN 'Under 50'
+         WHEN (quantity*cost_to_customer_per_qty) BETWEEN 50 AND 100 THEN '50-100'
+         WHEN (quantity*cost_to_customer_per_qty) > 100 THEN 'Over 100'
+         END AS transaction_band 
+    FROM customer_purchases
 
+36. Create a customer_type column: Local-if ZIP<30000, Metro- if ZIP between 30000 to 70000, Premium- if above
+    SELECT *, CASE WHEN customer_zip < 30000 THEN 'Local' 
+        WHEN customer_zip BETWEEN 30000 AND 70000 THEN 'Metro'
+        WHEN customer_zip > 70000 THEN 'Premium'
+        END AS customer_type 
+    FROM customer
 
+37. Show a derived field in vendor_inventory indicating cost_per_item, rounded to 1 decimal
+    SELECT *, ROUND(original_price/quantity,1) AS cost_per_item FROM vendor_inventory               # verify
 
+38. Combine booth_number, vendor_id, and market_dates into a single assignment_code
+    SELECT *, CONCAT(booth_number,vendor_id,market_dates) AS assignment_code FROM vendor_booth_assignments
 
+39. Add a column to vendor called is_family_business=1 if owner last name = vendor last name                    # verify
+    SELECT *, 
+    CASE WHEN vendor_owner_last_name IN (SELECT vendor_name FROM vendor) THEN 1 END AS 'is_family_business' 
+    FROM vendor 
 
+40. Add category_flag to product: 1 if category_id is in top3 by ID
+    SELECT *, CASE WHEN pcid.product_category_id <> NULL THEN 1 END AS 'category_flag'                          # verify
+    FROM product as p LEFT JOIN 
+        (SELECT DISTINCT(product_category_id) FROM product ORDER BY product_category_id LIMIT 3) as pcid 
+    ON p.product_category_id = pcid.product_category_id
 
+41. Return purchase_summary that says: 'Expensive Bulk' if quantity>5 and price>100, 'Affordable' otherwise
+    SELECT *, CASE WHEN quantity>5 AND (quantity*cost_to_customer_per_qty)>100 THEN 'Expensive' ELSE 'Affordable' END AS purchase_summary
+    FROM customer_purchases
 
+42. Use CASE to define market_category: 'Rainy Day' if rain_flag=1, 'Snowy Day' if snow_flag=1, 'Clear Day' otherwise
+    SELECT *, 
+    CASE WHEN market_rain_flag=1 THEN 'Rainy Day'
+         WHEN market_snow_flag=1 THEN 'Snowy Day'
+         ELSE 'Clear Day' END AS market_category
+    FROM market_date_info
 
-
-
-
+43. Build a seasonal_description column by combining season + day (e.g., "SummerSaturday").
+    SELECT *, CONCAT(market_season,market_day) AS seasonal_description FROM market_date_info
