@@ -1,0 +1,117 @@
+SQL Practice Questions - LEFT, RIGHT, CASE, Subqueries, Execution Order
+-------------------------------------------------------------------------------------------------------
+1. Show the first 3 letters of each customer's first name.
+    SELECT *, LEFT(customer_first_name, 3) AS customer_fn_l3 FROM customer
+2. Display the last 2 characters of each product's name.
+    SELECT *, RIGHT(product_name,2) AS prod_nm_r2 FROM product
+3. Return the first 4 letters of vendor names.
+    SELECT *, LEFT(vendor_name,4) vendor_nm_l4 FROM vendor
+4. Get the last 3 characters of all customer ZIP codes.
+    SELECT *, RIGHT(customer_zip,3) AS cust_zip_r3 FROM customer
+5. List vendor owner first names with their first initials using LEFT().
+    SELECT *, CONCAT(LEFT(vendor_owner_first_name,1),LEFT(vendor_owner_last_name,1)) AS initials FROM vendor
+6. Extract the last 5 letters of product descriptions using RIGHT().
+    SELECT *, RIGHT(booth_description,5) AS bd_r5 FROM booth
+7. Display a derived column with the first 2 letters of each market day.
+    SELECT *, LEFT(market_day, 2) AS md_l2 FROM market_date_info
+8. Show vendor booth numbers and their last digit.
+    SELECT *, RIGHT(booth_number,1) AS bn_r1 FROM vendor_booth_assignments
+9. Create a code from the first 2 letters of vendor name and last 2 digits of vendor ID.
+    SELECT *, CONCAT(LEFT(vendor_name,2),RIGHT(vendor_id,2)) AS code FROM vendor
+10. Return the first and last letter of each product category name.
+    SELECT *, CONCAT(LEFT(product_category_name,1),RIGHT(product_category_name,1)) AS pc_nm FROM product_category
+11. Create a column is long name-1 if customer first name is longer than 5 characters, else 0.
+    SELECT *, CASE WHEN LENGTH(customer_first_name)>5 THEN 1 ELSE 0 END AS 'long name' FROM customer
+12. In the vendor inventory table, create a column to classify original price as 'Low', 'Medium', or 'High"
+    SELECT DISTINCT(original_price) FROM vendor_inventory ORDER BY original_price;
+    SELECT *, CASE WHEN original_price <5 THEN 'Low' WHEN original_price <15 THEN 'Medium' ELSE 'High' END AS 'price_classification' FROM vendor_inventory
+13. Label booths as "Premium' if booth price level is 'A', 'Standard' if 'B', else 'Basic'.
+    SELECT *, CASE WHEN booth_price_level = 'A' THEN 'Premium' WHEN booth_price_level = 'B' THEN 'Standard' ELSE 'Basic' END AS 'label' FROM booth
+14. Add a column in customer table: "Metro' if ZIP > 60000, 'Urban' if between 30000-60000, else 'Rural'.
+    SELECT *, CASE WHEN customer_zip > 60000 THEN 'Metro' WHEN customer_zip BETWEEN 30000 AND 60000 THEN 'Urban' ELSE 'Rural' END AS 'zip_category' FROM customer
+15. Create a season label in market_date_info 'Hot' if max temp > 30, else 'Normal".
+    SELECT *, CASE WHEN market_max_temp > 30 THEN 'Hot' ELSE 'Normal' END AS 'season label' FROM market_date_info
+16. Use CASE in customer purchases to label quantity as 'Bulk' (>10), 'Standard" (>5), or 'Few'
+    SELECT *, CASE WHEN quantity>10 THEN 'Bulk' WHEN quantity>5 THEN 'Standard' ELSE 'Few' END AS 'quantity Label' FROM customer_purchases
+17. Flag products with a product size ending in 'kg' as "Weight-Based' or else 'Unit-Based'.
+    SELECT *, CASE WHEN product_size LIKE '%kg' THEN 'Weight-Based' ELSE 'Unit-Based' END AS 'product label' FROM product
+18. In vendor, show 'Owner Match' if vendor_name contains the vendor_owner last_name, else 'Independent'.
+
+19. Return a new column market day type Weekend' if Saturday/Sunday, else 'Weekday".
+    SELECT *, CASE WHEN market_day IN ('Saturday','Sunday') THEN 'Weekend' ELSE 'Weekday' END AS 'market day type' FROM market_date_info
+20. Classify ZIP codes as Short (<=5 digits) or Long using CASE.
+    SELECT *, CASE WHEN LENGTH(customer_zip)<=5 THEN 'Short' ELSE 'Long' END AS 'zip_classif' FROM customer
+21. Flag product name as 'Has Green' if it contains 'Green', else 'Other'.
+    SELECT *, CASE WHEN product_name LIKE '%Green%' THEN 'Green' ELSE 'Other' END AS 'Has Green?' FROM product
+22. Add a special flag to market dates where special notes is not NULL..
+    SELECT *, CASE WHEN special_notes <> 'NULL' THEN 1 ELSE 0 END AS 'special_flag' FROM market_date_info
+23. Return vendor name and assign category using CASE: if vendor type contains "Fruit', then 'Fruit Seller', else 'General'.
+    SELECT *, CASE WHEN vendor_type LIKE '%Fruit%' THEN 'Fruit Seller' ELSE 'General' END AS 'vendor category' FROM vendor
+24. Create a column in booth to show 'Ends in 0' if booth number ends in 0.
+    SELECT *, CASE WHEN RIGHT(vba.booth_number,1)=0 THEN 1 ELSE 0 END AS 'Ends in 0' FROM booth b LEFT JOIN vendor_booth_assignments vba on b.booth_number=vba.booth_number
+25. Assign customer type using CASE: 'A' for ZIP < 30000, 'B' for ZIP < 60000, else 'C'.
+    SELECT *, CASE WHEN customer_zip<30000 THEN 'A' WHEN customer_zip<60000 THEN 'B' ELSE 'C' END AS 'customer_type' FROM customer
+26. Get the list of all customers whose customer zip appears more than once in the customer table by matching with other customers' ZIPs.
+    SELECT customer_zip, customer_first_name AS customers_at_this_zip FROM customer order by customer_zip;
+    SELECT customer_zip, COUNT(DISTINCT customer_first_name) AS customers_at_this_zip FROM customer group by customer_zip;
+    SELECT c1.customer_zip, c1.customer_first_name FROM customer c1 JOIN customer c2 ON c1.customer_id = c2.customer_id ORDER BY customer_zip;
+27. Retrieve all vendors from the vendor table who have at least one matching vendor id present in the vendor inventory table
+    SELECT DISTINCT(v.vendor_name) FROM vendor v JOIN vendor_inventory vi ON v.vendor_id = vi.vendor_id
+28. List all products from the product table that have been purchased at least once (ie, their product id exists in the customer_purchases table).
+    SELECT DISTINCT(product_name) FROM product p JOIN vendor_inventory vi ON p.product_id=vi.product_id JOIN customer_purchases cp ON cp.product_id=vi.product_id
+29. Find all vendors whose vendor id does not appear in the vendor booth assignments table
+    SELECT * FROM vendor v LEFT JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id WHERE vba.vendor_id IS NULL
+30. Return all product IDs from the vendor inventory table that do not appear in the customer purchases table.
+    SELECT * FROM vendor_inventory vi LEFT JOIN customer_purchases cp ON vi.product_id=cp.product_id WHERE cp.product_id IS NULL
+31. Get customer IDs from the customer purchases table where the market date matches any market date in the market date info table with market snow flag 1.
+    SELECT cp.customer_id
+    FROM customer_purchases cp JOIN vendor_inventory vi ON cp.market_date=vi.market_date
+    JOIN vendor v ON v.vendor_id=vi.vendor_id
+    JOIN vendor_booth_assignments vba ON vba.vendor_id=v.vendor_id
+    JOIN market_date_info mdi ON mdi.market_date=vba.market_date
+    WHERE cp.market_date=mdi.market_date AND market_snow_flag=1
+32. List all booth number values from the vendor booth assignments table where the market date falls in a Winter season, as per the market date info table.
+    SELECT * FROM vendor_booth_assignments vba JOIN market_date_info mdi ON vba.market_date=mdi.market_date WHERE market_season LIKE '%winter%'
+33. Retrieve customer id and market date from the customer purchases table for all purchases where the vendor id is 5.
+    SELECT customer_id, market_date FROM customer_purchases WHERE vendor_id=5
+34. List all products where the product category.id matches any value in the product category table.
+    SELECT * FROM product p JOIN product_category pc ON p.product_id=pc.product_category_id
+35. Return all market date entries from the vendor booth assignments table that are not listed in the market date info table
+    SELECT * FROM market_date_info mdi RIGHT JOIN vendor_booth_assignments vba ON mdi.market_date=vba.market_date WHERE mdi.market_date IS NULL
+36. Find all vendor id values that exist in the vendor booth assignments table but do not exist in the vendor inventory tahle.
+    SELECT * FROM vendor_booth_assignments vba LEFT JOIN vendor v ON vba.vendor_id=vba.vendor_id LEFT JOIN vendor_inventory vi ON vi.vendor_id=v.vendor_id WHERE vi.vendor_id IS NULL 
+37. Get the list of customers from the customer table who made purchases (customer id in customer purchases) for products that do not exist in the vendor inventory table
+    SELECT * FROM customer_purchases cp LEFT JOIN vendor_inventory vi on cp.product_id=vi.product_id WHERE vi.product_id IS NULL
+38. Retrieve all vendors where the vendor owner last name appears as a customer last_name in the customer table.
+    SELECT * 
+    FROM customer c JOIN customer_purchases cp ON c.customer_id=cp.customer_id
+    JOIN vendor_inventory vi ON cp.vendor_id=vi.vendor_id
+    JOIN vendor v ON v.vendor_id=vi.vendor_id
+    WHERE v.vendor_owner_last_name=c.customer_last_name
+39. Last all product id values from the product table where the product category.id is also present in the vendor inventory table.
+    SELECT pc.product_category_id,pc.product_category_name FROM product p JOIN vendor_inventory vi ON p.product_id=vi.product_id JOIN product_category pc ON pc.product_category_id=p.product_category_id
+40. Find all customers whose customer first name starts with the same letter as any vendor's vendor name
+    SELECT DISTINCT(c.customer_first_name),v.vendor_owner_first_name
+    FROM customer c JOIN customer_purchases cp ON c.customer_id=cp.customer_id
+    JOIN vendor_inventory vi ON cp.vendor_id=vi.vendor_id
+    JOIN vendor v ON v.vendor_id=vi.vendor_id
+    WHERE LEFT(c.customer_first_name,1)=LEFT(v.vendor_owner_first_name,1)
+41. Write a query that uses WHERE to filter first, then ORDER BY to sort by customer_last_name.
+    SELECT * FROM customer WHERE customer_last_name ORDER BY customer_last_name                 # verify
+42. Display vendors whose names start with "G", then sort by vendor type descending
+    SELECT * FROM vendor WHERE vendor_name LIKE 'G%' ORDER BY vendor_type DESC
+43. In product, show records with product qty type 'kg', ordered by product name.
+    SELECT * FROM product WHERE product_qty_type LIKE '%kg%'ORDER BY product_name
+44. Select first 10 rows from customer purchases, ordered by market date descending
+    SELECT * customer_purchases ORDER BY market_date DESC LIMIT 10
+45. First filter product size not NULL, then return only those starting with a digit
+    SELECT * FROM product WHERE product_size IS NOT NULL AND LEFT(product_size,1) IN (1,2,3,4,5,6,7,8,9,0)
+46. Show all vendors where vendor type is not null, sorted alphabetically by name.
+    SELECT * FROM vendor WHERE vendor_type IS NOT NULL ORDER BY vendor_name
+47. In market date info, füter market day = 'Saturday', then select the earliest market date.
+    SELECT * FROM market_date_info WHERE market_day = 'Saturday' ORDER BY market_date
+48. Return products with name starting with "T", limit to 5, sorted alphabetically.
+    SELECT * FROM product WHERE product_name LIKE 'T%' ORDER BY product_name
+49. Show all customers whose ZIP ends in '0' and order by first name,   
+    SELECT * FROM customer WHERE RIGHT(customer_zip,1) in (1,2,3,4,5,6,7,8,9,0) ORDER BY customer_first_name
+50. From vendor, inventory, first filter quantity 5, then order by original price descending and limit to 5 rows.

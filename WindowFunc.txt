@@ -1,0 +1,32 @@
+Questions with Window Functions, Joins & Table References
+---------------------------------------------------------------------------------------------------------------------------
+1. Use ROW_NUMBER to assign a unique ID to each customer from the 'customer' table ordered by customer_first_name, and return only those whose name starts with 'A'
+    SELECT *, ROW_NUMBER() OVER (ORDER BY customer_first_name) AS 'chust_uniq_id'
+    FROM customer WHERE customer_first_name LIKE 'A%'
+
+2. For each customer from customer_purchases and customer, find their first purchase date using ROW_NUMBER, and display the corresponding 'product_id' and 'quantity'
+    SELECT cp.product_id, cp.quantity, ROW_NUMBER() OVER(ORDER BY market_date) AS 'txn_id' 
+    FROM customer c LEFT JOIN customer_purchases cp ON c.customer_id = cp.customer_id
+
+3. Use DENSE_RANK() to rank vendors from the 'vendor' and 'vendor_booth_assignments' tables by number of booth assignments 
+    SELECT *, DENSE_RANK() OVER(PARTITION BY booth_number ORDER BY vendor_id ) AS 'no.OfBoothAssignments' 
+    FROM vendor v LEFT JOIN vendor_booth_assignments vba ON v.vendor_id = vba.vendor_id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
