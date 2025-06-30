@@ -1,0 +1,29 @@
+Joins in SQL
+----------------------------------------------------------------------------------
+1. Retrieve a list of booth descriptions for all booths that have been assigned to vendors. Ensure to include only those booths that have an assignment.
+    SELECT b.booth_number, booth_description, vendor_id FROM booth b JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number
+
+2. List the customer names and the quantity of products they purchased. Include only those customers who have made a purchase.
+    SELECT CONCAT(customer_first_name," ",customer_last_name) AS customer_name, ROUND(SUM(quantity),1) AS quantity_purchased FROM customer c JOIN customer_purchases cp ON c.customer_id=cp.customer_id GROUP BY customer_name
+
+3. Retrieve a list of vendor names along with their assigned booth numbers. Include only those vendors who have been assigned atleast 1 booth.
+    SELECT vendor_name, booth_number FROM vendor v JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
