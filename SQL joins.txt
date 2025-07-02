@@ -35,24 +35,41 @@ Joins in SQL
     GROUP BY product_name
     ORDER BY product_id
 
+9. List the vendor names and number of times each vendor has been assigned a booth. Include only those vendors who have been assigned a booth atleast once 
+    SELECT v.vendor_id, v.vendor_name, COUNT(booth_number) AS total_assignments
+    FROM vendor v JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id
+    GROUP by vendor_id
+    HAVING total_assignments > 0
+    ORDER BY vendor_id
 
+10. Retrieve the total number of purchases made by each customer. Include customers who have made atleast one purchase.
+    SELECT c.customer_id, CONCAT(c.customer_first_name," ", customer_last_name) AS customer_name, ROUND(SUM(c.quantity),0) AS total_purchases
+    FROM customer c JOIN customer_purchases cp ON c.customer_id=cp.customer_id 
+    GROUP BY c.customer_id
+    HAVING total_purchases > 0
 
+11. List all vendor names and the total revenue they generated from product sales. include only those vendors who have sold atleast 1 product
+    SELECT v.vendor_name, SUM(cp.cost_to_customer_per_qty) AS total_revenue
+    FROM vendor v LEFT JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id
+    LEFT JOIN customer_purchases cp ON vi.product_id=cp.product_id
+    GROUP BY vendor_name 
+    HAVING total_revenue > 0
 
+12. Retrieve a list of booth descriptions along with the market dates on which they were assigned to the vendors. Include only those booths that were assigned on specific market dates
+    SELECT market_date, booth_description 
+    FROM booth b JOIN vendor_booth_assignments vba ON vba.booth_number=b.booth_number 
 
+13. Retrieve a list of products along with the average quantity purchased per transaction. Include only those products that have been purchased.
+    SELECT p.product_id, product_name, AVG(cp.quantity) AS avg_quantity_per_trxn
+    FROM product p JOIN vendor_inventory vi ON p.product_id=vi.product_id
+    JOIN customer_purchases cp ON vi.product_id=cp.product_id
+    GROUP BY transaction_time
+    ORDER BY p.product_id, product_name
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+14. List all vendors and the booths they were assigned to including vendors who were not assigned any booths
+    SELECT v.vendor_id, v.vendor_name, b.booth_number
+    FROM vendor v LEFT JOIN vendor_booth_assignments vba ON v.vendor_id=vi.vendor_id
+    LEFT JOIN booth b ON vba.booth_number=b.booth_number   
 
 
 
