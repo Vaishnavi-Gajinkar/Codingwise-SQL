@@ -10,7 +10,7 @@ Joins in SQL
     SELECT vendor_name, booth_number FROM vendor v JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id 
 
 4. Display the product name along with their category names. Ensure to include only those products that have a valid category assigned
-    SELECT product_name, product_category_name FROM product p JOIN product_category pc ON p.product_id=pc.product_category_id
+    SELECT product_name, product_category_name FROM product p JOIN product_category pc ON p.product_category_id=pc.product_category_id
 
 5. List all booth and their assignment to vendors, including booths that have not been assigned to any vendor
     SELECT * FROM booth b LEFT JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number WHERE vba.booth_number IS NULL
@@ -68,9 +68,43 @@ Joins in SQL
 
 14. List all vendors and the booths they were assigned to including vendors who were not assigned any booths
     SELECT v.vendor_id, v.vendor_name, b.booth_number
-    FROM vendor v LEFT JOIN vendor_booth_assignments vba ON v.vendor_id=vi.vendor_id
-    LEFT JOIN booth b ON vba.booth_number=b.booth_number   
+    FROM vendor v LEFT JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id
+    LEFT JOIN booth b ON vba.booth_number=b.booth_number
+    GROUP BY v.vendor_name,booth_number
+    ORDER BY v.vendor_id
+
+15. Display the total quantity of products purchased for each product category. Include only those categories that have products associated with them.
+    SELECT pc.product_category_name, SUM(cp.quantity) AS total_purchased_items_in_category
+    FROM product_category pc LEFT JOIN product p ON pc.product_category_id=p.product_category_id
+    LEFT JOIN vendor_inventory vi ON p.product_id=vi.product_id
+    LEFT JOIN customer_purchases cp ON cp.product_id=vi.product_id
+    GROUP BY pc.product_category_name
+
+16. List vendors who have generated more than $1000 in total_sales. Include only those vendors who have achieved this sales figure
+    SELECT v.vendor_id, v.vendor_name, SUM(cp.quantity*cp.cost_to_customer_per_qty) AS total_sales
+    FROM vendor v JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id
+    JOIN customer_purchases cp ON cp.vendor_id=vi.vendor_id 
+    GROUP BY v.vendor_name
+    HAVING total_sales > 1000
+    ORDER BY vendor_id
+
+17. Retrieve the list of vendor names along with booth types that they were assigned to. Include only vendors who have been assigned booths
+    SELECT vendor_name, booth_type 
+    FROM vendor v JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id
+    JOIN booth b ON b.booth_number=vba.booth_number
+    GROUP BY vendor_name, booth_type
+    ORDER BY booth_type DESC
+
+18. List all customers who purchased 'Habanero Peppers - Organic' along with the quantity they purchased. Include only those customers who have made this specific purchase.
+    SELECT CONCAT(customer_first_name," ",customer_last_name) AS 'customers_who_purchased_Habanero', COUNT(cp.quantity) AS 'total_Habaneros'
+    FROM customer c JOIN customer_purchases cp ON c.customer_id=cp.customer_id
+    JOIN vendor_inventory vi ON vi.product_id=cp.vendor_id
+    JOIN product p ON p.product_id=vi.product_id
+    GROUP BY customers_who_purchased_Habanero
+    HAVING p.product_id = (SELECT product_id from product where product_name LIKE 'Haba%')
 
 
 
- 
+
+
+
