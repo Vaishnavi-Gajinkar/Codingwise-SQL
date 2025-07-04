@@ -103,6 +103,25 @@ Joins in SQL
     GROUP BY customers_who_purchased_Habanero
     HAVING p.product_id = (SELECT product_id from product where product_name LIKE 'Haba%')
 
+19. Retrieve the booths along with booth_type along with the market_dates on which they were assigned, including only those booths that were assigned during rainy market dates
+    SELECT b.booth_number, booth_type, mdi.market_date
+    FROM booth b JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number
+    JOIN market_date_info mdi ON mdi.market_date=vba.market_date
+    WHERE market_rain_flag = 1
+
+20. Retrieve the total sales for each vendor on market_dates when the weather was sunny. Include only those vendors who made sales on sunny days.
+    SELECT cp.market_date, v.vendor_name, SUM(cp.quantity*cp.cost_to_customer_per_qty) AS total_sales
+    FROM customer_purchases cp JOIN vendor_inventory vi ON cp.vendor_id=vi.vendor_id
+    JOIN vendor v ON v.vendor_id=vi.vendor_id
+    JOIN vendor_booth_assignments vba ON vi.vendor_id=vba.vendor_id
+    JOIN market_date_info mdi ON mdi.market_date=vba.market_date
+    WHERE market_season LIKE 'Summer%'
+
+
+
+
+
+
 
 
 
