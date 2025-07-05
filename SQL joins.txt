@@ -117,8 +117,29 @@ Joins in SQL
     JOIN market_date_info mdi ON mdi.market_date=vba.market_date
     WHERE market_season LIKE 'Summer%'
 
+21. List the top 5 customers who purchased the most 'Apple Pie' products. Include only customers who have purchased this product
+    SELECT CONCAT(customer_first_name," ",customer_last_name) as cust_full_name, cp.quantity
+    FROM customer c JOIN customer_purchases cp ON c.customer_id=cp.customer_id
+    JOIN vendor_inventory vi ON cp.product_id=vi.product_id
+    JOIN product p ON p.product_id=vi.product_id
+    WHERE product_name = 'Apple Pie'
+    ORDER BY cp.quantity DESC
+    LIMIT 5
 
+22. Retrieve the list of vendors assigned to booths with the highest booth price level. Include only those vendors who were assigned to these booths.
+    SELECT v.vendor_id, v.vendor_name, b.booth_number, b.booth_type, booth_price_level
+    FROM vendor v JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id
+    JOIN booth b ON b.booth_number=vba.booth_number
+    GROUP BY booth_price_level
+    ORDER BY booth_price_level DESC 
 
+23. List the products which have an average selling price greater than $5. Include only those products that meet this criterion.
+    SELECT p.product_id, p.product_name, AVG(original_price) AS avg_sell_price
+    FROM product p JOIN vendor_inventory vi ON p.product_id=vi.product_id
+    WHERE avg_sell_price > 5
+
+24. Retrieve a list of vendor_names along with the number of booths they have been assigned to, and include only those vendors who have been assigned more than 3 booths
+    
 
 
 
