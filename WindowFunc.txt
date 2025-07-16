@@ -5,15 +5,18 @@ Questions with Window Functions, Joins & Table References
     FROM customer WHERE customer_first_name LIKE 'A%'
 
 2. For each customer from customer_purchases and customer, find their first purchase date using ROW_NUMBER, and display the corresponding 'product_id' and 'quantity'
-    SELECT cp.product_id, cp.quantity, ROW_NUMBER() OVER(ORDER BY market_date) AS 'txn_id' 
-    FROM customer c LEFT JOIN customer_purchases cp ON c.customer_id = cp.customer_id
+    SELECT * FROM (SELECT cp.*, ROW_NUMBER() OVER(PARTITION BY c.customer_id ORDER BY market_date) AS 'txn_id' 
+    FROM customer c LEFT JOIN customer_purchases cp ON c.customer_id = cp.customer_id) as sub WHERE txn_id = 1
 
 3. Use DENSE_RANK() to rank vendors from the 'vendor' and 'vendor_booth_assignments' tables by number of booth assignments 
     SELECT *, DENSE_RANK() OVER(PARTITION BY booth_number ORDER BY vendor_id ) AS 'no.OfBoothAssignments' 
     FROM vendor v LEFT JOIN vendor_booth_assignments vba ON v.vendor_id = vba.vendor_id
 
-
-
+4. Retrieve the top 3 most frequently purchased products per customer using RANK with joins btwn 'customer_purchases','product' & 'customer'
+    SELECT * FROM
+(SELECT cp.customer_id, cp.product_id, cp.quantity, DENSE_RANK() OVER (PARTITION BY customer_id ORDER BY quantity DESC) AS rnk
+        FROM customer c JOIN customer_purchases cp ON c.customer_id = cp.customer_id) AS sub
+WHERE rnk IN (1,2,3)
 
 
 
