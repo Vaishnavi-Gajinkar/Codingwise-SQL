@@ -18,14 +18,16 @@ Questions with Window Functions, Joins & Table References
         FROM customer c JOIN customer_purchases cp ON c.customer_id = cp.customer_id) AS sub
 WHERE rnk IN (1,2,3)
 
+5. Use ROW_NUMBER to identify duplicate vendor names from the vendor table after applying TRIM and keep only the first occurance
+    SELECT * FROM
+    (SELECT vendor_name AS vendorName, ROW_NUMBER() OVER(PARTITION BY TRIM(vendor_name) ORDER BY vendor_name) AS rn FROM vendor) AS sub
+    WHERE rn=1
 
+6. Extract the first 3 letters of each customer's name from 'customer' using LEFT and assign a row number partitioned by zip code
+    SELECT *, LEFT(customer_first_name, 3) AS cust_initials, ROW_NUMBER() OVER (PARTITION BY customer_zip) AS rn FROM customer
 
-
-
-
-
-
-
+7. Rank vendors by revenue using DENSE_RANK from vendor, customer_purchases and product
+    SELECT *, SUM(quantity*cost_to_customer_per_qty) AS revenue , DENSE_RANK() OVER (ORDER BY SUM(quantity*cost_to_customer_per_qty) DESC) AS rnk FROM customer_purchases GROUP BY vendor_id
 
 
 
