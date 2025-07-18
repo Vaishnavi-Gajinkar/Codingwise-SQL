@@ -27,11 +27,24 @@ WHERE rnk IN (1,2,3)
     SELECT *, LEFT(customer_first_name, 3) AS cust_initials, ROW_NUMBER() OVER (PARTITION BY customer_zip) AS rn FROM customer
 
 7. Rank vendors by revenue using DENSE_RANK from vendor, customer_purchases and product
-    SELECT *, SUM(quantity*cost_to_customer_per_qty) AS revenue , DENSE_RANK() OVER (ORDER BY SUM(quantity*cost_to_customer_per_qty) DESC) AS rnk FROM customer_purchases GROUP BY vendor_id
+    SELECT vendor_id, SUM(quantity*cost_to_customer_per_qty) AS revenue , DENSE_RANK() OVER (ORDER BY SUM(quantity*cost_to_customer_per_qty) DESC) AS rnk FROM customer_purchases GROUP BY vendor_id
 
+8. Display each customer's first and last purchase using ROW_NUMBER on 'customer_purchases' joined with 'customer'
+    SELECT * FROM (
+    SELECT cp.*, CONCAT(c.customer_first_name,c.customer_last_name) AS cust_full_name, 
+    ROW_NUMBER() OVER (PARTITION BY c.customer_id ORDER BY market_date ASC) AS first,
+    ROW_NUMBER() OVER (PARTITION BY c.customer_id ORDER BY market_date DESC) AS last
+    FROM customer c JOIN customer_purchases cp ON c.customer_id = cp.customer_id) AS sub
+    WHERE first=1 OR last=1
 
+9. Create a product short code using CONCAT and rank based on quantity_sold, using data from 'product' and 'customer_purchases'
+    SELECT *, CONCAT(rnk,"_",Total_purchased) AS 'Product Code' FROM
+    (SELECT *, DENSE_RANK() OVER (ORDER BY Total_purchased DESC) AS rnk FROM 
+    (SELECT p.product_id, SUM(cp.quantity) AS Total_purchased 
+    FROM customer_purchases cp JOIN vendor_inventory vi ON cp.product_id = vi.product_id JOIN product p ON p.product_id=vi.product_id 
+    GROUP BY p.product_id) AS sub_sub) AS sub
 
-
-
-
-
+10. Rank booths from 'booth' by number of vendor_assignments in vendor_booth_assignments
+    SELECT *, DENSE_RANK() OVER (ORDER BY total_booths DESC) AS tot_boo FROM
+    (SELECT b.booth_number, COUNT(b.booth_number) AS total_booths FROM booth b JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number GROUP BY b.booth_number) AS sub
+    
