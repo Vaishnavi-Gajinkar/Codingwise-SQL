@@ -48,3 +48,17 @@ WHERE rnk IN (1,2,3)
     SELECT *, DENSE_RANK() OVER (ORDER BY total_booths DESC) AS tot_boo FROM
     (SELECT b.booth_number, COUNT(b.booth_number) AS total_booths FROM booth b JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number GROUP BY b.booth_number) AS sub
     
+11. Join 'vendor' and 'vendor_booth_assignments' to find the latest booth assignment using ROW_NUMBER   
+    SELECT * FROM
+    (SELECT vba.*, ROW_NUMBER() OVER (PARTITION BY booth_number ORDER BY market_date DESC) AS latest_assigned 
+    FROM vendor v JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id) AS sub
+    WHERE latest_assigned = 1
+
+12. Use RANK to rank products within each category using 'product' and 'customer_purchases'
+    SELECT p.*, RANK() OVER (PARTITION BY p.product_category_id ORDER BY quantity DESC) AS highest_qty_sold 
+    FROM product p JOIN vendor_inventory vi ON p.product_id=vi.product_id
+    JOIN customer_purchases cp ON cp.product_id=vi.product_id
+
+
+
+
