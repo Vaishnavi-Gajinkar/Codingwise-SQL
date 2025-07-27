@@ -59,11 +59,16 @@ WHERE rnk IN (1,2,3)
     FROM product p JOIN vendor_inventory vi ON p.product_id=vi.product_id
     JOIN customer_purchases cp ON cp.product_id=vi.product_id
 
-13. Use CASE & RANK to label customers from 'customers' and 'customer_purchases' as 'Top', 'Average' or 'Low' buyers.
+13. Use CASE & RANK to label customers from 'customers' and 'customer_purchases' as 'Top', 'Average' or 'Low' buyers.                                   # verify
     SELECT *, CASE WHEN cost_to_customer_per_qty > AVG(cost_to_customer_per_qty) THEN 'Top'
                    WHEN cost_to_customer_per_qty < AVG(cost_to_customer_per_qty) THEN 'Low'
                    ELSE 'Average' END AS 'categ'
     FROM (SELECT *, DENSE_RANK() OVER (PARTITION BY customer_id ORDER BY cost_to_customer_per_qty DESC) AS dnsRnk FROM customer_purchases) AS sub
 
-
-
+14. For each product category, rank customers based on total quantity purchased using DENSE_RANK
+    SELECT pc.product_category_id, pc.product_category_name, c.customer_id, CONCAT(c.customer_first_name," ",c.customer_last_name) AS cust_full_name, DENSE_RANK() OVER (PARTITION BY product_category_id ORDER BY vi.quantity DESC) AS dnsRnk
+    FROM (SELECT *
+        FROM customer c JOIN customer_purchases cp ON c.customer_id=cp.customer_id
+        JOIN vendor_inventory vi ON cp.product_id=vi.product_id
+        JOIN product p ON vi.product_id=p.product_id
+        JOIN product_category pc ON p.product_category_id=pc.product_category_id) AS sub
