@@ -65,10 +65,18 @@ WHERE rnk IN (1,2,3)
                    ELSE 'Average' END AS 'categ'
     FROM (SELECT *, DENSE_RANK() OVER (PARTITION BY customer_id ORDER BY cost_to_customer_per_qty DESC) AS dnsRnk FROM customer_purchases) AS sub
 
-14. For each product category, rank customers based on total quantity purchased using DENSE_RANK
+14. For each product category, rank customers based on total quantity purchased using DENSE_RANK                                                        # verify
     SELECT pc.product_category_id, pc.product_category_name, c.customer_id, CONCAT(c.customer_first_name," ",c.customer_last_name) AS cust_full_name, DENSE_RANK() OVER (PARTITION BY product_category_id ORDER BY vi.quantity DESC) AS dnsRnk
     FROM (SELECT *
         FROM customer c JOIN customer_purchases cp ON c.customer_id=cp.customer_id
         JOIN vendor_inventory vi ON cp.product_id=vi.product_id
         JOIN product p ON vi.product_id=p.product_id
         JOIN product_category pc ON p.product_category_id=pc.product_category_id) AS sub
+
+15. Use ROW_NUMBER to return the most recent inventory update per product for each vendor.
+    SELECT * FROM
+        (SELECT vendor_id, product_id, market_date, ROW_NUMBER() OVER (PARTITION BY vendor_id, product_id ORDER BY market_date DESC) as roenum FROM vendor_inventory) AS sub
+    WHERE roenum = 1
+
+16. Join vendor and booth tables, and rank vendors within each booth_type by number of booth assignments
+    
