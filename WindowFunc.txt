@@ -79,4 +79,12 @@ WHERE rnk IN (1,2,3)
     WHERE roenum = 1
 
 16. Join vendor and booth tables, and rank vendors within each booth_type by number of booth assignments
+    SELECT booth_type, vendor_id, COUNT(b.booth_number), RANK() OVER (PARTITION BY booth_type ORDER BY COUNT(b.booth_number) DESC) AS rnk
+    FROM vendor_booth_assignments vba JOIN booth b ON vba.booth_number=b.booth_number GROUP BY vendor_id, booth_type
+
+17. For each vendor, rank the original prices of their products using ROW_NUMBER and display only those with a product size ending in 'g'
+    SELECT vendor_id, product_size, ROW_NUMBER() OVER (PARTITION BY vendor_id ORDER BY original_price DESC) AS roenum 
+    FROM vendor_inventory vi JOIN product p ON vi.product_id=p.product_id
+    WHERE product_size LIKE '%g'
     
+18. Create a revenue tier per vendor using CASE and rank them using RANK
