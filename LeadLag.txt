@@ -1,0 +1,11 @@
+SQL practice functions - Lead, latest_assigned
+-------------------------------------------------------------------------------------------------------------------------------------------------
+1. Find the previous purchase for each customer using lag
+    SELECT *, LAG(product_id, 1, NULL) OVER (PARTITION BY customer_id ORDER BY market_date ASC) as prev_purchase FROM customer_purchases 
+
+2. Calculate the difference in purchase amount between current and previous transaction using LAG()
+    SELECT *, ((cost_to_customer_per_qty*quantity)-prev_purchase_amt) AS difference 
+    FROM (SELECT *, LAG((cost_to_customer_per_qty*quantity), 1, NULL) OVER (PARTITION BY customer_id ORDER BY market_date) AS prev_purchase_amt FROM customer_purchases) AS sub
+
+3. Find the next product a customer purchased using Lead
+    SELECT *, LEAD(product_id, 1, NULL) OVER (PARTITION BY customer_id ORDER BY market_date) AS next_purchased FROM customer_purchases
