@@ -1,4 +1,4 @@
-SQL practice functions - Lead, latest_assigned
+SQL practice questions - Lead, Lag functions 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 1. Find the previous purchase for each customer using lag
     SELECT *, LAG(product_id, 1, NULL) OVER (PARTITION BY customer_id ORDER BY market_date ASC) as prev_purchase FROM customer_purchases 
@@ -9,3 +9,12 @@ SQL practice functions - Lead, latest_assigned
 
 3. Find the next product a customer purchased using Lead
     SELECT *, LEAD(product_id, 1, NULL) OVER (PARTITION BY customer_id ORDER BY market_date) AS next_purchased FROM customer_purchases
+
+4. Identify the First purchase and 2nd purchase of each customer using LEAD()
+    SELECT customer_id, market_date, product_id AS 1stPurchase, 2ndPurchase FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY customer_id) AS cust_record1 FROM
+        (SELECT *, LEAD(product_id, 1, NULL) OVER (PARTITION BY customer_id ORDER BY market_date) AS 2ndPurchase FROM customer_purchases cp 
+            WHERE market_date=(SELECT MIN(market_date) FROM customer_purchases WHERE customer_id=cp.customer_id)) AS sub) AS sub_sub WHERE cust_record1 = 1
+
+5. Find the purchase date difference between consecutive purchases for each customer
+    SELECT customer_id, market_date, next_date, DATEDIFF(market_date, next_date) AS days_since_prev_purchase 
+    FROM (SELECT customer_id, market_date, LAG(market_date,1,0) OVER (PARTITION BY customer_id ORDER BY market_date) AS next_date FROM customer_purchases GROUP BY market_date, customer_id) AS sub
