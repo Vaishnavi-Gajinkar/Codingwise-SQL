@@ -18,3 +18,13 @@ SQL practice questions - Lead, Lag functions
 5. Find the purchase date difference between consecutive purchases for each customer
     SELECT customer_id, market_date, next_date, DATEDIFF(market_date, next_date) AS days_since_prev_purchase 
     FROM (SELECT customer_id, market_date, LAG(market_date,1,0) OVER (PARTITION BY customer_id ORDER BY market_date) AS next_date FROM customer_purchases GROUP BY market_date, customer_id) AS sub
+
+6. Compare the current and next booth price for vendors using LEAD()
+    SELECT vba.vendor_id, vba.market_date, b.booth_number, b.booth_price_level, LEAD(b.booth_price_level, 1, NULL) OVER (PARTITION BY vba.vendor_id ORDER BY vba.market_date) AS next_booth_price 
+    FROM booth b JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number
+
+7. Calculate the running total of customer purchases using PARTITION BY
+    SELECT customer_id, (cost_to_customer_per_qty*quantity) AS cost_price, (cost_to_customer_per_qty*quantity*running_total) AS running_total FROM
+    (SELECT LAG((cost_to_customer_per_qty*quantity,1,NULL)) OVER(PARTITION BY customer_id ORDER BY market_date) AS running_total FROM customer_purchases) AS sub
+
+8. Find the previous booth assignment for each vendor
