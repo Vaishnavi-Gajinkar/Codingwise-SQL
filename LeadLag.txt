@@ -24,7 +24,7 @@ SQL practice questions - Lead, Lag functions
     FROM booth b JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number
 
 7. Calculate the running total of customer purchases using PARTITION BY
-    SELECT customer_id, (cost_to_customer_per_qty*quantity) AS cost_price, (cost_to_customer_per_qty*quantity*running_total) AS running_total FROM
-    (SELECT LAG((cost_to_customer_per_qty*quantity,1,NULL)) OVER(PARTITION BY customer_id ORDER BY market_date) AS running_total FROM customer_purchases) AS sub
+    SELECT customer_id, market_date, (cost_to_customer_per_qty*quantity) AS cost_price, SUM(cost_to_customer_per_qty*quantity) OVER(PARTITION BY customer_id ORDER BY market_date) AS prev_curr_sum FROM customer_purchases
 
 8. Find the previous booth assignment for each vendor
+    SELECT *, LAG(booth_number,1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS previous_booth FROM vendor_booth_assignments
