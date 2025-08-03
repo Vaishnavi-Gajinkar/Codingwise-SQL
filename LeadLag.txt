@@ -28,3 +28,15 @@ SQL practice questions - Lead, Lag functions
 
 8. Find the previous booth assignment for each vendor
     SELECT *, LAG(booth_number,1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS previous_booth FROM vendor_booth_assignments
+
+9. Calculate the average cost difference between consecutive purchases
+    SELECT customer_id, (cost_to_customer_per_qty*quantity) AS curr_cost, next_cost, ABS((cost_to_customer_per_qty*quantity)-next_cost)/2 AS avg_cost_diff 
+    FROM (SELECT *, LEAD((cost_to_customer_per_qty*quantity),1,NULL) OVER (PARTITION BY customer_id ORDER BY market_date) AS next_cost FROM customer_purchases) AS sub
+
+10. Identify the next vendor assignment for each booth
+    SELECT b.booth_number, vba.vendor_id, vba.market_date, LEAD(vendor_id,1,NULL) OVER (PARTITION BY b.booth_number ORDER BY market_date) AS next_vendor FROM booth b LEFT JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number
+
+11. Find the product sold before and after the most popular product
+    SELECT vendor_id, prev_qty, qty, next_qty, ROW_NUMBER() OVER (PARTITION BY vendor_id ORDER BY qty DESC) as rn FROM (
+        SELECT v.vendor_id AS vendor_id, cp.quantity AS qty, LAG(cp.quantity,1,NULL) OVER (PARTITION BY v.vendor_id ORDER BY cp.quantity DESC) AS prev_qty, LEAD(cp.quantity,1,NULL) OVER (PARTITION BY v.vendor_id ORDER BY cp.quantity DESC) AS next_qty 
+        FROM vendor v LEFT JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id LEFT JOIN customer_purchases cp ON vi.product_id=cp.product_id ORDER BY v.vendor_id) AS sub -- WHERE rn = 1
