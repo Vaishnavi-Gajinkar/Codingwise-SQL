@@ -40,3 +40,16 @@ SQL practice questions - Lead, Lag functions
     SELECT vendor_id, prev_qty, qty, next_qty, ROW_NUMBER() OVER (PARTITION BY vendor_id ORDER BY qty DESC) as rn FROM (
         SELECT v.vendor_id AS vendor_id, cp.quantity AS qty, LAG(cp.quantity,1,NULL) OVER (PARTITION BY v.vendor_id ORDER BY cp.quantity DESC) AS prev_qty, LEAD(cp.quantity,1,NULL) OVER (PARTITION BY v.vendor_id ORDER BY cp.quantity DESC) AS next_qty 
         FROM vendor v LEFT JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id LEFT JOIN customer_purchases cp ON vi.product_id=cp.product_id ORDER BY v.vendor_id) AS sub -- WHERE rn = 1
+
+12. Compare the current and next market_date for each vendor 
+    SELECT v.vendor_id, market_date AS curr_date, LEAD(vba.market_date,1,NULL) OVER (PARTITION BY v.vendor_id ORDER BY vba.market_date) AS next_date FROM vendor v LEFT JOIN vendor_booth_assignments vba ON v.vendor_id=vba.vendor_id 
+
+13. Calculate the Lead time between product sales for each vendor 
+    SELECT vend_id, cp.product_id, curr_date, DATEDIFF(next_date, curr_date) AS next_sales_after_days FROM 
+        (SELECT v.vendor_id AS vend_id, cp.market_date AS curr_date, LEAD(cp.market_date,1,NULL) OVER (PARTITION BY v.vendor_id ORDER BY cp.market_date) AS next_date 
+            FROM vendor v LEFT JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id LEFT JOIN customer_purchases cp ON vi.market_date=cp.market_date) AS sub
+
+14. Compare the current and previous inventory update date for vendors
+    SELECT *, DATEDIFF(current_market_date, prev_updated_on) AS days_updated_after FROM
+        (SELECT DISTINCT vendor_id, current_market_date, prev_updated_on FROM
+            (SELECT vendor_id, LEAD(market_date, 1, NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS current_market_date, market_date AS prev_updated_on FROM vendor_inventory) AS sub_sub GROUP BY current_market_date, prev_updated_on, vendor_id) AS sub
