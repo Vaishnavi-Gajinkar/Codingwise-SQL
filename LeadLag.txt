@@ -55,10 +55,16 @@ SQL practice questions - Lead, Lag functions
             (SELECT vendor_id, LEAD(market_date, 1, NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS current_market_date, market_date AS prev_updated_on FROM vendor_inventory) AS sub_sub GROUP BY current_market_date, prev_updated_on, vendor_id) AS sub
 
 15. Identify vendors with the shortest lead time between sales
-    SELECT *, TIMEDIFF(prevTrxnTime, next_trxn) AS trxn_time_diff FROM
-        (SELECT cp.vendor_id AS vend_id, cp.market_date AS mrktdt, cp.transaction_time AS next_trxn, LAG(cp.transaction_time,1,NULL) OVER (PARTITION BY cp.vendor_id ORDER BY cp.market_date, cp.transaction_time) AS prevTrxnTime
-            FROM vendor_inventory vi JOIN customer_purchases cp ON vi.vendor_id=cp.vendor_id) AS sub GROUP BY vend_id, mrktdt, next_trxn
+    SELECT * FROM
+        (SELECT *, MIN(trxn_time_diff) OVER (PARTITION BY market_date) AS mini_trxn_time_this_day FROM 
+            (SELECT *, TIMEDIFF(LEAD(transaction_time) OVER (PARTITION BY vendor_id, market_date ORDER BY market_date, transaction_time), transaction_time) AS trxn_time_diff FROM customer_purchases) AS sub_sub) AS sub WHERE mini_trxn_time_this_day = trxn_time_diff
 
 16. Find the previous purchase date for each customer
-
+    SELECT c.customer_id, CONCAT(c.customer_first_name," ",c.customer_last_name) AS cust_full_name, cp.product_id, market_date AS purchase_dt, LAG(market_date,1,"First Purchase") OVER (PARTITION BY c.customer_id ORDER BY market_date) AS prev_purchase_date 
+    FROM customer_purchases cp JOIN customer c ON cp.customer_id=c.customer_id
+    
 17. Compare the current and next product price for each vendor
+    SELECT * FROM 
+        (SELECT v.vendor_id, v.vendor_name, vi.product_id, market_date, original_price, ROUND(LEAD(original_price) OVER (PARTITION BY v.vendor_id ORDER BY vi.market_date),2) AS next_price 
+         FROM vendor v LEFT JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id) AS sub 
+    WHERE original_price != next_price
