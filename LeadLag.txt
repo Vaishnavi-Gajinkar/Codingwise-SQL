@@ -68,3 +68,19 @@ SQL practice questions - Lead, Lag functions
         (SELECT v.vendor_id, v.vendor_name, vi.product_id, market_date, original_price, ROUND(LEAD(original_price) OVER (PARTITION BY v.vendor_id ORDER BY vi.market_date),2) AS next_price 
          FROM vendor v LEFT JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id) AS sub 
     WHERE original_price != next_price
+
+18. Calculate the lead time between vendor booth assignments
+    SELECT *, DATEDIFF(next_booth_assgn_on, market_date) AS day_interval, TIMEDIFF(next_booth_assgn_on, market_date) AS time_interval FROM
+        (SELECT *, LEAD(market_date,1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS next_booth_assgn_on FROM vendor_booth_assignments) AS sub
+
+19. Find the previous and next booth assignment for each vendor
+    SELECT vendor_id, market_date, 
+    LAG(booth_number,1,"first_booth_assigned") OVER (PARTITION BY vendor_id ORDER BY market_date) AS prev_booth, booth_number AS curr_booth, 
+    LEAD(booth_number,1,"last_assigned_booth") OVER (PARTITION BY vendor_id ORDER BY market_date) AS next_booth 
+    FROM vendor_booth_assignments ORDER BY vendor_id, market_date
+
+20. Identify vendors who changed booths between consecutive market dates
+    SELECT vendor_id, booth_number, next_booth_num, market_date,next_booth_assgn_on FROM
+        (SELECT *, (booth_number - next_booth_num) AS same_booth_check, DATEDIFF(next_booth_assgn_on, market_date) AS day_interval FROM
+            (SELECT *, LEAD(market_date,1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS next_booth_assgn_on, LEAD(booth_number,1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS next_booth_num
+             FROM vendor_booth_assignments) AS sub_sub) AS sub WHERE day_interval = 1 AND same_booth_check != 0
