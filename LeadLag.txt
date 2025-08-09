@@ -84,3 +84,26 @@ SQL practice questions - Lead, Lag functions
         (SELECT *, (booth_number - next_booth_num) AS same_booth_check, DATEDIFF(next_booth_assgn_on, market_date) AS day_interval FROM
             (SELECT *, LEAD(market_date,1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS next_booth_assgn_on, LEAD(booth_number,1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) AS next_booth_num
              FROM vendor_booth_assignments) AS sub_sub) AS sub WHERE day_interval = 1 AND same_booth_check != 0
+
+21. Calculate the sales difference between consecutive transactions
+    SELECT market_date, quantity*cost_to_customer_per_qty AS curr_txn_cost, next_txn_cost, ABS((cost_to_customer_per_qty*quantity)-next_txn_cost) AS sales_difference FROM
+    (SELECT *, LEAD(quantity*cost_to_customer_per_qty,1,"last_transaction_of_day") OVER (PARTITION BY market_date ORDER BY transaction_time) AS next_txn_cost FROM customer_purchases) AS sub
+
+22. Find the 1st & 2nd most sold products for each vendor
+    SELECT * FROM (
+        SELECT v.vendor_id, cp.quantity, ROW_NUMBER() OVER (PARTITION BY v.vendor_id ORDER BY cp.quantity DESC) AS roenum 
+        FROM customer_purchases cp RIGHT JOIN vendor_inventory vi ON cp.vendor_id=vi.vendor_id RIGHT JOIN vendor v ON vi.vendor_id=v.vendor_id) AS sub WHERE roenum IN (1,2)
+
+23. Compare the current and previous total revenue for each vendor 
+    SELECT *, CASE WHEN todays_revnu > next_day_revnu THEN "Better than next day"
+               WHEN todays_revnu < next_day_revnu THEN "next day was Better"
+               ELSE "Same as yesterday" END AS daily_market_perf FROM (
+    SELECT *, (quantity*cost_to_customer_per_qty) AS todays_revnu, LEAD((quantity*cost_to_customer_per_qty),1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) as next_day_revnu FROM customer_purchases) AS sub
+
+24. Display the running total of products sold by each vendor
+
+25. Identify customers who increased their purchase quantity over consecutive transactions 
+
+26. Calculate the difference in booth prices between consecutive assignment for vendors
+
+27. Find vendors with the highest and lowest sales for consecutive market dates
