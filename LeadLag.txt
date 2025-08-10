@@ -101,9 +101,22 @@ SQL practice questions - Lead, Lag functions
     SELECT *, (quantity*cost_to_customer_per_qty) AS todays_revnu, LEAD((quantity*cost_to_customer_per_qty),1,NULL) OVER (PARTITION BY vendor_id ORDER BY market_date) as next_day_revnu FROM customer_purchases) AS sub
 
 24. Display the running total of products sold by each vendor
+    SELECT *, ROUND(SUM(original_price) OVER (PARTITION BY v.vendor_id ORDER BY vi.market_date), 2) AS running_tot FROM vendor_inventory vi RIGHT JOIN vendor v ON vi.vendor_id=v.vendor_id ORDER BY v.vendor_id
 
 25. Identify customers who increased their purchase quantity over consecutive transactions 
+    SELECT * FROM(
+        SELECT *, LEAD(todays_qty) OVER (PARTITION BY customer_id ORDER BY market_date) AS next_day_qty FROM (
+            SELECT customer_id, market_date, SUM(quantity) AS todays_qty FROM customer_purchases GROUP BY market_date, customer_id ORDER BY customer_id, market_date) AS sub_sub) AS sub 
+    WHERE todays_qty < next_day_qty
 
 26. Calculate the difference in booth prices between consecutive assignment for vendors
+    SELECT *, CONCAT(booth_price_level,"-",next_bth_assgnd) AS price_difference FROM (
+        SELECT v.vendor_id, vba.market_date, booth_price_level, LEAD(b.booth_price_level,1,NULL) OVER (PARTITION BY v.vendor_id ORDER BY vba.market_date) AS next_bth_assgnd 
+        FROM vendor_booth_assignments vba RIGHT JOIN booth b ON b.booth_number=vba.booth_number RIGHT JOIN vendor v ON v.vendor_id=vba.vendor_id) AS sub  
+    WHERE booth_price_level != next_bth_assgnd
 
 27. Find vendors with the highest and lowest sales for consecutive market dates
+    SELECT DISTINCT vendor_id, market_date, 
+        MIN(ROUND(cost_to_customer_per_qty*quantity,2)) OVER (PARTITION BY vendor_id ORDER BY market_date) AS Min_sale_of_day, 
+        MAX(ROUND(cost_to_customer_per_qty*quantity,2)) OVER (PARTITION BY vendor_id ORDER BY market_date) AS Max_sale_of_day
+    FROM customer_purchases 
