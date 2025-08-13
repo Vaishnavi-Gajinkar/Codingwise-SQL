@@ -96,6 +96,15 @@ WHERE rnk IN (1,2,3)
     FROM vendor v LEFT JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id LEFT JOIN customer_purchases cp ON vi.vendor_id=cp.vendor_id GROUP BY v.vendor_id ORDER BY v.vendor_id) AS sub
 
 19. Use LEFT, CASE, and RANK to identify customers whose names begin with 'J' and who are in the top 2 ZIP codes by purchase count.
-    SELECT cust_id, CONCAT(customer_first_name," ",customer_last_name) AS cust_full_name, customer_zip, total, RANK() OVER (PARTITION BY c.customer_id ORDER BY SUM(quantity*cost_to_customer_per_qty) DESC) AS rnk FROM 
-        (SELECT c.customer_id as cust_id, SUM(quantity*cost_to_customer_per_qty) AS total FROM
-         customer c LEFT JOIN customer_purchases cp ON c.customer_id=cp.customer_id group by c.customer_id ORDER by total DESC) as sub
+    SELECT *, RANK() OVER (ORDER BY total DESC) AS rnk FROM
+        (SELECT c.customer_id AS cust_id, CONCAT(customer_first_name," ",customer_last_name) AS cust_full_name, customer_zip, SUM(quantity*cost_to_customer_per_qty) AS total FROM
+        customer c LEFT JOIN customer_purchases cp ON c.customer_id=cp.customer_id GROUP BY c.customer_id, cust_full_name, customer_zip ORDER BY total DESC) AS sub WHERE LEFT(cust_full_name,1) IN ('J','j') LIMIT 2
+
+20. Retrieve the top 2 selling products per booth_type using RANK and join with booth assignments
+    SELECT *, RANK() OVER (PARTITION BY b_num ORDER BY total_qty_sold DESC) AS rnk FROM                                 # verify
+        (SELECT b.booth_number AS b_num, vi.product_id, SUM(cp.quantity) AS total_qty_sold
+            FROM booth b LEFT JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number
+                LEFT JOIN vendor v ON v.vendor_id=vba.vendor_id
+                LEFT JOIN vendor_inventory vi ON vi.vendor_id=v.vendor_id
+                LEFT JOIN customer_purchases cp ON cp.vendor_id=vi.vendor_id
+                GROUP BY b.booth_number, vi.product_id ORDER BY total_qty_sold DESC) AS sub
