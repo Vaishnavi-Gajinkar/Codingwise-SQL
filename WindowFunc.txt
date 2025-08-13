@@ -88,3 +88,14 @@ WHERE rnk IN (1,2,3)
     WHERE product_size LIKE '%g'
     
 18. Create a revenue tier per vendor using CASE and rank them using RANK
+    SELECT *, CASE WHEN Total_Sales < 50000 THEN 'low'
+                WHEN Total_Sales < 100000 THEN 'medium'
+                WHEN Total_Sales < 10000000 THEN 'high'
+                ELSE 'undefined' END AS tier_lvl FROM
+    (SELECT v.vendor_id, SUM(cp.quantity*cp.cost_to_customer_per_qty) AS Total_Sales 
+    FROM vendor v LEFT JOIN vendor_inventory vi ON v.vendor_id=vi.vendor_id LEFT JOIN customer_purchases cp ON vi.vendor_id=cp.vendor_id GROUP BY v.vendor_id ORDER BY v.vendor_id) AS sub
+
+19. Use LEFT, CASE, and RANK to identify customers whose names begin with 'J' and who are in the top 2 ZIP codes by purchase count.
+    SELECT cust_id, CONCAT(customer_first_name," ",customer_last_name) AS cust_full_name, customer_zip, total, RANK() OVER (PARTITION BY c.customer_id ORDER BY SUM(quantity*cost_to_customer_per_qty) DESC) AS rnk FROM 
+        (SELECT c.customer_id as cust_id, SUM(quantity*cost_to_customer_per_qty) AS total FROM
+         customer c LEFT JOIN customer_purchases cp ON c.customer_id=cp.customer_id group by c.customer_id ORDER by total DESC) as sub
