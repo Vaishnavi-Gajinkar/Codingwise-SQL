@@ -108,3 +108,15 @@ WHERE rnk IN (1,2,3)
                 LEFT JOIN vendor_inventory vi ON vi.vendor_id=v.vendor_id
                 LEFT JOIN customer_purchases cp ON cp.vendor_id=vi.vendor_id
                 GROUP BY b.booth_number, vi.product_id ORDER BY total_qty_sold DESC) AS sub
+
+21. Use DENSE_RANK to rank vendors by cumulative revenue on rainy market dates only
+    SELECT vend_id, mkt_dt, SUM(qty*ctcpqty) AS revenue, DENSE_RANK() OVER (PARTITION BY vend_id ORDER BY SUM(qty*ctcpqty) DESC) AS drnk FROM
+        (SELECT v.vendor_id AS vend_id, cp.quantity AS qty, cp.cost_to_customer_per_qty AS ctcpqty, cp.market_date AS mkt_dt, mdi.market_rain_flag 
+         FROM vendor v LEFT JOIN customer_purchases cp ON v.vendor_id=cp.vendor_id JOIN market_date_info mdi ON cp.market_date=mdi.market_date WHERE market_rain_flag=1) as sub
+    GROUP BY vend_id, mkt_dt
+
+22. Use ROW_NUMBER to Retrieve the latest sale for each product and flag the top sale per vendor using CASE
+    SELECT *, CASE WHEN revenue = (MAX(revenue) OVER (PARTITION BY vid)) THEN 'Top sale of this vendor' ELSE "" END AS sale_flag FROM
+        (SELECT pid, vid, mktdt, SUM(qty*ctcpqty) as revenue FROM 
+            (SELECT p.product_id as pid, cp.market_date as mktdt, ROW_NUMBER() OVER(PARTITION BY p.product_id ORDER BY vi.market_date DESC) AS roenum, vi.vendor_id as vid, cp.quantity as qty, cp.cost_to_customer_per_qty AS ctcpqty
+            FROM product p JOIN vendor_inventory vi ON p.product_id=vi.product_id JOIN customer_purchases cp ON vi.vendor_id=cp.vendor_id) AS sub_sub group by pid, vid, mktdt) as sub
