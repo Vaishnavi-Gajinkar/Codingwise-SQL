@@ -120,3 +120,12 @@ WHERE rnk IN (1,2,3)
         (SELECT pid, vid, mktdt, SUM(qty*ctcpqty) as revenue FROM 
             (SELECT p.product_id as pid, cp.market_date as mktdt, ROW_NUMBER() OVER(PARTITION BY p.product_id ORDER BY vi.market_date DESC) AS roenum, vi.vendor_id as vid, cp.quantity as qty, cp.cost_to_customer_per_qty AS ctcpqty
             FROM product p JOIN vendor_inventory vi ON p.product_id=vi.product_id JOIN customer_purchases cp ON vi.vendor_id=cp.vendor_id) AS sub_sub group by pid, vid, mktdt) as sub
+
+23. Combine TRIM, LEFT, and RANK to identify vendor name variants and rank them by inventory value                                                              # verify
+    SELECT *, vendor_name, vendor_owner_first_name, vendor_owner_last_name, RANK() OVER (PARTITION BY vid ORDER BY value DESC) AS rnk FROM
+        (SELECT vendor_id AS vid, product_id, SUM(quantity*original_price) AS value FROM vendor_inventory GROUP BY vendor_id, product_id ORDER BY value DESC) AS vi JOIN vendor v ON vi.vid=v.vendor_id
+
+24. Rank all booths by the number of unique vendors assigned to them.
+    SELECT *, DENSE_RANK() OVER (ORDER BY vendor_count DESC) AS rnk FROM
+        (SELECT b.booth_number, COUNT(DISTINCT vba.vendor_id) AS vendor_count FROM booth b LEFT JOIN vendor_booth_assignments vba ON b.booth_number=vba.booth_number GROUP BY booth_number ORDER BY booth_number) AS sub    
+
