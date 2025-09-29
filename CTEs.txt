@@ -1,0 +1,7 @@
+CS1 - Operations wants to see how much revenue each vendor made on each market day to plan booth pricing.
+Approach: Compute daily gross revenue per vendor (quantity × cost_to_customer_per_qty) for all market dates
+
+WITH gr AS (
+    SELECT *, (cp.quantity*cp.cost_to_customer_per_qty) AS gross_rev from vendor_inventory vi join customer_purchases cp where cp.vendor_id=vi.vendor_id
+    )
+SELECT * from gr
