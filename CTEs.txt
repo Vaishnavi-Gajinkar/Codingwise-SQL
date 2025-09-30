@@ -1,7 +1,23 @@
-CS1 - Operations wants to see how much revenue each vendor made on each market day to plan booth pricing.
+## CS1 - Operations wants to see how much revenue each vendor made on each market day to plan booth pricing.
 Approach: Compute daily gross revenue per vendor (quantity × cost_to_customer_per_qty) for all market dates
 
-WITH gr AS (
-    SELECT *, (cp.quantity*cp.cost_to_customer_per_qty) AS gross_rev from vendor_inventory vi join customer_purchases cp where cp.vendor_id=vi.vendor_id
+WITH gros_rev AS (
+    SELECT vi.vendor_id, cp.market_date, (cp.quantity*cp.cost_to_customer_per_qty) AS revenue FROM vendor_inventory vi JOIN customer_purchases cp WHERE cp.vendor_id=vi.vendor_id
     )
-SELECT * from gr
+SELECT vendor_id, market_date, SUM(revenue) AS total FROM gros_rev GROUP BY vendor_id, market_date ORDER BY vendor_id, market_date
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS2 - Category managers want a weekly leaderboard of products by total quantity sold.
+
+WITH qty_sold AS (
+    SELECT mdi.market_year, mdi.market_week, p.product_id, cp.quantity 
+    FROM product p JOIN customer_purchases cp ON p.product_id=cp.product_id 
+                   JOIN market_date_info mdi on cp.market_date=mdi.market_date
+)
+SELECT * FROM (
+SELECT *, RANK() OVER(PARTITION BY market_year ORDER BY tot_qty_sold DESC) AS rnk FROM(
+SELECT market_year, market_week, product_id, SUM(quantity) AS tot_qty_sold FROM qty_sold
+GROUP BY mdi.market_year, mdi.market_week, p.product_id ORDER BY market_year, market_week, product_id) AS sub_sub) AS sub WHERE rnk < 4
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
