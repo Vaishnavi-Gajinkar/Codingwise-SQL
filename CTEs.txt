@@ -55,3 +55,37 @@ For each day, compute morning revenue vs afternoon revenue
                 END ASC
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS5 - Finance wants to evaluate discounts: compare actual selling price vs the vendor’s listed price.
+For each (vendor_id, product_id, market_date), compute the average selling price, listed price, and variance.
+
+myqry - with discount_var AS(
+            select cp.market_date, cp.vendor_id, cp.product_id, cp.quantity as qty, cp.cost_to_customer_per_qty as ctcpqty, vi.original_price as org_prc from customer_purchases cp JOIN vendor_inventory vi ON cp.product_id=vi.product_id
+            )
+            select *, (org_prc - avg_cost) as variance from(select market_date, vendor_id, product_id, AVG(qty*ctcpqty) as avg_cost, org_prc from discount_var group by market_date, vendor_id, product_id, org_prc) as sub
+
+WITH avg_sell AS (
+    SELECT vendor_id, product_id, market_date, AVG(cost_to_customer_per_qty) AS avg_selling_price FROM customer_purchases GROUP BY vendor_id, product_id, market_date
+    )
+    SELECT a.vendor_id, a.product_id, a.market_date, a.avg_selling_price, vi.original_price AS listed_price, (a.avg_selling_price - vi.original_price) AS price_variance
+    FROM avg_sell a JOIN vendor_inventory vi ON vi.vendor_id = a.vendor_id
+    AND vi.product_id = a.product_id   AND vi.market_date = a.market_date
+    ORDER BY a.market_date, a.vendor_id, a.product_id;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS6 - Data team noticed inconsistent entries for product size and wants a report.
+List products where product_size is NULL or blank
+
+SELECT * FROM product WHERE product_size IS NULL OR TRIM(product_size) LIKE ""
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS7 - Management wants to know which customers are willing to pay more than average.
+Find purchases where the transaction price was above the product’s average.
+
+WITH prod_avg_prc AS(
+    SELECT product_id, AVG(original_price) as product_avg FROM vendor_inventory GROUP BY product_id
+)
+SELECT product_id, customer_id, cost_to_customer_per_qty FROM customer_purchases cp JOIN prod_avg_prc pag ON cp.product_id=pag.product_id
+WHERE pag.product_avg < cost_to_customer_per_qty
