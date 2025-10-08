@@ -85,7 +85,29 @@ SELECT * FROM product WHERE product_size IS NULL OR TRIM(product_size) LIKE ""
 Find purchases where the transaction price was above the product’s average.
 
 WITH prod_avg_prc AS(
-    SELECT product_id, AVG(original_price) as product_avg FROM vendor_inventory GROUP BY product_id
+    SELECT product_id, AVG(cost_to_customer_per_qty) AS product_avg FROM customer_purchases GROUP BY product_id
 )
-SELECT product_id, customer_id, cost_to_customer_per_qty FROM customer_purchases cp JOIN prod_avg_prc pag ON cp.product_id=pag.product_id
+SELECT DISTINCT cp.product_id, customer_id, cost_to_customer_per_qty as paid_prc, product_avg FROM customer_purchases cp JOIN prod_avg_prc pag ON cp.product_id=pag.product_id
 WHERE pag.product_avg < cost_to_customer_per_qty
+ORDER BY cp.product_id, customer_id, product_avg
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS8 - Find each vendor’s second-best day
+Return day with second-highest revenue for each vendor.
+
+Approach 1 -
+
+WITH 2ndbest AS(
+    SELECT vendor_id, tot, RANK() OVER(PARTITION BY vendor_id ORDER BY tot DESC) AS rnk FROM (
+        SELECT vendor_id, market_date, SUM(quantity*cost_to_customer_per_qty) AS tot FROM customer_purchases GROUP BY  vendor_id, market_date) AS sub
+)
+SELECT * FROM 2ndbest WHERE rnk=2
+
+---------------------------
+Approach 2 -
+
+SELECT vendor_id, MAX(quantity*cost_to_customer_per_qty) as tot FROM customer_purchases 
+WHERE tot < (SELECT vendor_id, MAX(quantity*cost_to_customer_per_qty) FROM customer_purchases GROUP BY vendor_id)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
