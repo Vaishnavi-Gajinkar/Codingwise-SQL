@@ -111,3 +111,27 @@ SELECT vendor_id, MAX(quantity*cost_to_customer_per_qty) as tot FROM customer_pu
 WHERE tot < (SELECT vendor_id, MAX(quantity*cost_to_customer_per_qty) FROM customer_purchases GROUP BY vendor_id)
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS9 - Marketing wants to segment customers into quartiles by total spend.
+Compute total spend per customer and split into quartiles
+
+WITH cte AS (
+    SELECT customer_id, SUM(quantity*cost_to_customer_per_qty) AS tot_spend FROM customer_purchases
+    GROUP BY customer_id
+)
+SELECT *, NTILE(4) OVER(ORDER BY tot_spend DESC) AS PERCENTILE FROM cte
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS10 - Finance wants cumulative weekly revenue per vendor by year.
+Compute cumulative revenue by vendor by week
+
+WITH cte AS(
+    SELECT market_year, market_week, cp.vendor_id, SUM(cp.quantity*cost_to_customer_per_qty) AS spend
+    FROM market_date_info mdi JOIN customer_purchases cp ON mdi.market_date=cp.market_date
+    GROUP BY market_year, market_week, cp.vendor_id 
+    ORDER BY market_year, market_week 
+)
+SELECT market_year, market_week, vendor_id, spend, SUM(spend) OVER(PARTITION BY vendor_id BY market_week, market_year) AS cum_sum FROM cte 
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
