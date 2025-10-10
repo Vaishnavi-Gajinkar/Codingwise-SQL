@@ -150,11 +150,21 @@ ORDER BY vendor_id, market_date
 ## CS12 - Ops wants sales split into rain vs no-rain columns
 Show daily revenue split into rain_revenue and no_rain_revenue.
 
-WITH rain_check AS (
-   SELECT market_date, (SELECT market_date, SUM(quantity*cost_to_customer_per_qty) FROM market_date_info WHERE market_rain_flag=1 GROUP BY market_date) AS rain,
-   (SELECT market_date, SUM(quantity*cost_to_customer_per_qty) FROM market_date_info WHERE market_rain_flag=0 GROUP BY market_date) AS no_rain
-   FROM customer_purchases cp JOIN market_date_info mdi USING(market_date)
-)
-SELECT market_date,  
-FROM rain_check
-GROUP BY market_date
+with rainy AS(
+    SELECT mdi1.market_date, SUM(quantity*cost_to_customer_per_qty) AS rain_rev
+    FROM customer_purchases cp JOIN market_date_info mdi1 USING(market_date) JOIN market_date_info mdi2 USING(market_date)
+    WHERE mdi1.market_date = mdi2.market_date AND mdi1.market_rain_flag = 1
+    GROUP BY market_date ORDER BY market_date),
+nonrainy AS(
+    SELECT mdi1.market_date, SUM(quantity*cost_to_customer_per_qty) AS non_rain_rev
+    FROM customer_purchases cp JOIN market_date_info mdi1 USING(market_date) JOIN market_date_info mdi2 USING(market_date)
+    WHERE mdi1.market_date = mdi2.market_date AND mdi1.market_rain_flag = 0
+    GROUP BY market_date ORDER BY market_date)
+
+SELECT market_date, rain_rev, NULL AS "non_rain_rev" from rainy
+UNION
+SELECT market_date, NULL AS "rain_rev", non_rain_rev from nonrainy
+GROUP BY market_date 
+ORDER BY market_date
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
