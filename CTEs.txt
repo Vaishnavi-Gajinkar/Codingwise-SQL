@@ -135,3 +135,26 @@ WITH cte AS(
 SELECT market_year, market_week, vendor_id, spend, SUM(spend) OVER(PARTITION BY vendor_id BY market_week, market_year) AS cum_sum FROM cte 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS11 - Merchandising wants a rolling view over last 3 markets per vendor.
+Compute 3-row rolling sum of revenue.
+
+WITH cte AS (
+    SELECT *, (quantity*cost_to_customer_per_qty) AS revenue FROM customer_purchases
+)
+SELECT vendor_id, market_date, revenue, SUM(revenue) OVER(PARTITION BY vendor_id ORDER BY market_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS rolling_sum FROM cte
+ORDER BY vendor_id, market_date
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS12 - Ops wants sales split into rain vs no-rain columns
+Show daily revenue split into rain_revenue and no_rain_revenue.
+
+WITH rain_check AS (
+   SELECT market_date, (SELECT market_date, SUM(quantity*cost_to_customer_per_qty) FROM market_date_info WHERE market_rain_flag=1 GROUP BY market_date) AS rain,
+   (SELECT market_date, SUM(quantity*cost_to_customer_per_qty) FROM market_date_info WHERE market_rain_flag=0 GROUP BY market_date) AS no_rain
+   FROM customer_purchases cp JOIN market_date_info mdi USING(market_date)
+)
+SELECT market_date,  
+FROM rain_check
+GROUP BY market_date
