@@ -119,7 +119,7 @@ WITH cte AS (
     SELECT customer_id, SUM(quantity*cost_to_customer_per_qty) AS tot_spend FROM customer_purchases
     GROUP BY customer_id
 )
-SELECT *, NTILE(4) OVER(ORDER BY tot_spend DESC) AS PERCENTILE FROM cte
+SELECT *, NTILE(4) OVER(ORDER BY tot_spend DESC) AS PERCENTILE FROM cte ORDER BY tot_spend DESC
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -168,3 +168,25 @@ GROUP BY market_date
 ORDER BY market_date
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS13 - Finance monitors cumulative revenue by week within each year for forecasting.
+For each vendor, compute cumulative weekly revenue per market_year.
+
+WITH vend_rev AS (
+    SELECT vi.vendor_id, mdi.market_date, COALESCE(SUM(cp.quantity*cp.cost_to_customer_per_qty),0) as revenue 
+    FROM vendor vi LEFT JOIN customer_purchases cp USING(vendor_id)
+    LEFT JOIN market_date_info mdi ON cp.market_date=mdi.market_date GROUP BY vendor_id, market_date
+)
+SELECT vr.vendor_id, mdi.market_year, mdi.market_week, SUM(revenue) OVER(PARTITION BY vr.vendor_id, mdi.market_year ORDER BY mdi.market_year DESC, mdi.market_week) AS cumulative_revenue
+FROM vend_rev vr LEFT JOIN market_date_info mdi USING(market_date)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS14 - Merchandising tracks short-term momentum using a 3-event rolling sum
+Compute a 3-row rolling revenue per vendor by market_date.
+
+WITH vend_rev AS(
+    SELECT vendor_id, market_date, SUM(quantity*cost_to_customer_per_qty) as revenue FROM customer_purchases GROUP BY vendor_id, market_date
+)
+SELECT vendor_id, market_date, revenue, SUM(revenue) OVER(PARTITION BY vendor_id ORDER BY market_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as cum_sum_3 FROM vend_rev
+ORDER BY vendor_id, market_date
