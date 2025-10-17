@@ -190,3 +190,37 @@ WITH vend_rev AS(
 )
 SELECT vendor_id, market_date, revenue, SUM(revenue) OVER(PARTITION BY vendor_id ORDER BY market_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) as cum_sum_3 FROM vend_rev
 ORDER BY vendor_id, market_date
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS15 - Ops compares day revenue split by rain flag.
+Return market_date with rain_revenue and no_rain_revenue columns
+
+WITH rev_cte AS(
+    SELECT market_date, SUM(quantity*cost_to_customer_per_qty) AS revenue 
+    FROM customer_purchases
+    GROUP BY market_date
+)
+SELECT rev_cte.market_date,
+    SUM(CASE WHEN market_rain_flag=1 THEN revenue ELSE 0 END) AS rain_rev,
+    SUM(CASE WHEN market_rain_flag=0 THEN revenue ELSE 0 END) AS no_rain_rev
+FROM rev_cte JOIN market_date_info mdi USING(market_date)
+GROUP BY mdi.market_date
+ORDER BY mdi.market_date
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS16 - Management evaluates demand for booth levels A/B/C by date.
+Count assignments per price level by market_date (columns A/B/C).
+
+WITH cte AS (
+    SELECT market_date, booth_number, COUNT(booth_number) AS bn FROM vendor_booth_assignments
+    GROUP BY market_date, booth_number
+)
+SELECT market_date, 
+    SUM(CASE WHEN b.booth_price_level = 'A' THEN bn ELSE 0 END) AS lvl_A,
+    SUM(CASE WHEN b.booth_price_level = 'B' THEN bn ELSE 0 END) AS lvl_B,
+    SUM(CASE WHEN b.booth_price_level = 'C' THEN bn ELSE 0 END) AS lvl_C
+FROM booth b JOIN cte USING(booth_number)
+GROUP BY market_date
+ORDER BY market_date
