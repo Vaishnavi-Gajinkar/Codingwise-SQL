@@ -224,3 +224,32 @@ SELECT market_date,
 FROM booth b JOIN cte USING(booth_number)
 GROUP BY market_date
 ORDER BY market_date
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS17 - Detect repeat purchases for same vendor-product-date by a customer
+List customer_id, vendor_id, product_id, market_date with txn_count > 1
+
+SELECT customer_id,vendor_id, product_id, market_date, COUNT(*) AS txn_cnt FROM customer_purchases 
+GROUP BY customer_id, vendor_id, product_id, market_date HAVING txn_cnt > 1
+ORDER BY customer_id, market_date
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS18 - Standardize messy booth_type values.
+Return booth_number and cleaned type (first word of TRIM(booth_type)).
+
+SELECT booth_number,
+TRIM(booth_type) AS booth_type_raw,
+SUBSTRING_INDEX(TRIM(booth_type), ' ', 1) AS booth_type_clean
+FROM booth;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS19 - Identify likely households sharing surname and ZIP.
+Find distinct customer pairs with same last name & ZIP (exclude self).
+
+SELECT * FROM customer c1 JOIN customer c2 USING(customer_last_name)
+WHERE c1.customer_last_name = c2.customer_last_name AND c1.customer_zip = c2.customer_zip
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
