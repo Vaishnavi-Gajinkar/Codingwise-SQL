@@ -249,7 +249,13 @@ FROM booth;
 ## CS19 - Identify likely households sharing surname and ZIP.
 Find distinct customer pairs with same last name & ZIP (exclude self).
 
+myqry -
 SELECT * FROM customer c1 JOIN customer c2 USING(customer_last_name)
 WHERE c1.customer_last_name = c2.customer_last_name AND c1.customer_zip = c2.customer_zip
+
+correctqry - 
+SELECT c1.customer_id AS cust_a, CONCAT(c1.customer_first_name, ' ', c1.customer_last_name) AS name_a, c2.customer_id AS cust_b, CONCAT(c2.customer_first_name, ' ', c2.customer_last_name) AS name_b, c1.customer_zip
+FROM customer c1 JOIN customer c2 ON c1.customer_zip = c2.customer_zip
+AND c1.customer_last_name = c2.customer_last_name AND c1.customer_id < c2.customer_id;
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
