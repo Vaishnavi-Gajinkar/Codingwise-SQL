@@ -259,3 +259,16 @@ FROM customer c1 JOIN customer c2 ON c1.customer_zip = c2.customer_zip
 AND c1.customer_last_name = c2.customer_last_name AND c1.customer_id < c2.customer_id;
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## CS20 - Vendor-category compliance check. Ensure vendor_type reflects what they sell.
+Find vendor-product-category where category name not present in vendor_type.
+
+WITH validtn_cte AS (
+    SELECT DISTINCT v.vendor_id vvid, v.vendor_name, v.vendor_type, p.product_id ppid, p.product_category_id ppcid, pc.product_category_id, pc.product_category_name, cp.product_id, cp.vendor_id
+    FROM vendor v JOIN customer_purchases cp USING(vendor_id)
+    JOIN product p USING(product_id)
+    JOIN product_category pc USING(product_category_id)
+)
+SELECT * FROM validtn_cte WHERE LOWER(vendor_type) NOT LIKE CONCAT('%', LOWER(product_category_name), '%')
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
